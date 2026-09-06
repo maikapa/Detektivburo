@@ -32,6 +32,7 @@
   .gold { font-size:15px; font-weight:700; color:var(--lampe);
           background:rgba(255,194,75,.14); border-radius:14px; padding:8px 10px; }
   .kopf-knopf { background:rgba(255,255,255,.08); border-radius:14px; font-size:16px; padding:8px 10px; }
+  .kopf-knopf.witz-an { background:rgba(255,194,75,.3); outline:2px solid var(--lampe); }
 
   .fortschritt { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
   .balken { flex:1; height:10px; border-radius:6px; background:rgba(255,255,255,.1); overflow:hidden; }
@@ -200,6 +201,9 @@ var ABLENKER = ["🍎","🌻","⚽","🪁","🐞","🍄","🪣","🧦","📚","�
 /* Bandenzeichen: wird beim Lösen sichtbar und verknüpft die Fälle. */
 var BANDEN = ["🦊","🦉","🐍","🕷️","🦇","🐙","🐺","🦅"];
 
+/* Witzmodus: nach jedem Fall gibt es was zu essen. */
+var FUTTER = ["🍔","🍕","🍩","🌭","🍟","🧁","🍰","🥨","🍫","🍦","🥞","🌮"];
+
 /* Jedes Kapitel bestohlen: fünf Teile, die zusammen ein Ganzes ergeben.
    Bewusst ohne Überschneidung mit Spuren- oder Ablenker-Symbolen. */
 var THEMEN = [
@@ -315,130 +319,151 @@ function fb(id, standard) {
   return standard;
 }
 
-function figurSVG(profil, angezogen) {
+function aktuellerSpeck() {
+  return (typeof S!=="undefined" && S && S.witz) ? Math.min(S.speck||0, 12) : 0;
+}
+
+/* speck 0–12: Witzmodus. Der Körper wird breiter, der Kopf runder,
+   ab einer Weile kommen Bauch, Backen und Doppelkinn dazu. */
+function figurSVG(profil, angezogen, speck) {
+  if (speck === undefined) speck = aktuellerSpeck();
+  var f  = Math.min(Math.max(speck,0), 12);
+  var bw = 1 + f*0.050;   // Körperbreite
+  var kw = 1 + f*0.018;   // Kopfbreite
+
   var a = angezogen || {};
   var kl = a.kleidung ? itemVon(a.kleidung) : null;
   var mantel = kl ? fb(kl.id, kl.farbe) : "#3E6FB0";
-  var s = "";
+  var k = "", p = "";
 
-  s += '<rect x="30" y="112" width="13" height="26" rx="5" fill="#334"></rect>'
+  /* --- Körper --- */
+  k += '<rect x="30" y="112" width="13" height="26" rx="5" fill="#334"></rect>'
     +  '<rect x="47" y="112" width="13" height="26" rx="5" fill="#334"></rect>'
     +  '<rect x="26" y="134" width="19" height="9" rx="4" fill="#22252E"></rect>'
     +  '<rect x="45" y="134" width="19" height="9" rx="4" fill="#22252E"></rect>';
-  s += '<rect x="11" y="70" width="13" height="42" rx="6" fill="'+mantel+'"></rect>'
+  k += '<rect x="11" y="70" width="13" height="42" rx="6" fill="'+mantel+'"></rect>'
     +  '<rect x="66" y="70" width="13" height="42" rx="6" fill="'+mantel+'"></rect>';
-  s += '<path d="M22 76 q0 -12 12 -12 h22 q12 0 12 12 v42 h-46 z" fill="'+mantel+'"></path>'
+  k += '<path d="M22 76 q0 -12 12 -12 h22 q12 0 12 12 v42 h-46 z" fill="'+mantel+'"></path>'
     +  '<rect x="42" y="66" width="6" height="52" fill="rgba(0,0,0,.18)"></rect>';
-  s += '<rect x="39" y="58" width="12" height="10" fill="'+profil.haut+'"></rect>';
+  if (f >= 2) k += '<ellipse cx="45" cy="102" rx="'+(17+f)+'" ry="14" fill="rgba(255,255,255,.13)"></ellipse>';
+  k += '<rect x="39" y="58" width="12" height="10" fill="'+profil.haut+'"></rect>';
 
-  if (profil.form==="zopf") s += '<ellipse cx="70" cy="52" rx="9" ry="16" fill="'+profil.haar+'"></ellipse>';
-  if (profil.form==="lang") {
-    s += '<rect x="21" y="40" width="9" height="36" rx="4" fill="'+profil.haar+'"></rect>'
-      +  '<rect x="60" y="40" width="9" height="36" rx="4" fill="'+profil.haar+'"></rect>';
-  }
-  s += '<circle cx="45" cy="41" r="23" fill="'+profil.haar+'"></circle>';
-  if (profil.form==="locken") {
-    s += '<circle cx="27" cy="32" r="8" fill="'+profil.haar+'"></circle>'
-      +  '<circle cx="45" cy="24" r="9" fill="'+profil.haar+'"></circle>'
-      +  '<circle cx="63" cy="32" r="8" fill="'+profil.haar+'"></circle>';
-  }
-  s += '<circle cx="45" cy="45" r="21" fill="'+profil.haut+'"></circle>';
-  s += '<circle cx="38" cy="45" r="2.8" fill="#2A2118"></circle>'
-    +  '<circle cx="52" cy="45" r="2.8" fill="#2A2118"></circle>'
-    +  '<path d="M39 55 q6 5 12 0" stroke="#2A2118" stroke-width="2" fill="none" stroke-linecap="round"></path>';
-
-  if (a.brille==="sonnen") { var cs=fb("sonnen","#1C1C22");
-    s += '<rect x="29" y="39" width="15" height="11" rx="4" fill="'+cs+'"></rect>'
-      +  '<rect x="46" y="39" width="15" height="11" rx="4" fill="'+cs+'"></rect>'
-      +  '<rect x="44" y="43" width="2" height="3" fill="'+cs+'"></rect>'; }
-  if (a.brille==="nachtsicht") { var cn=fb("nachtsicht","#2C3A2E");
-    s += '<rect x="26" y="37" width="38" height="14" rx="6" fill="'+cn+'"></rect>'
-      +  '<circle cx="36" cy="44" r="5" fill="#5BE07A"></circle>'
-      +  '<circle cx="54" cy="44" r="5" fill="#5BE07A"></circle>'; }
-  if (a.brille==="monokel") { var cm=fb("monokel","#D9A441");
-    s += '<circle cx="52" cy="45" r="9" fill="rgba(255,255,255,.3)" stroke="'+cm+'" stroke-width="2"></circle>'
-      +  '<path d="M60 50 q6 8 2 16" stroke="'+cm+'" stroke-width="1.5" fill="none"></path>'; }
-  if (a.brille==="taucher") { var ct=fb("taucher","#2E5E8C");
-    s += '<rect x="25" y="35" width="40" height="17" rx="8" fill="'+ct+'"></rect>'
-      +  '<rect x="29" y="38" width="32" height="11" rx="5" fill="#BFE4F5" opacity=".85"></rect>'
-      +  '<rect x="20" y="42" width="6" height="4" fill="'+ct+'"></rect>'
-      +  '<rect x="64" y="42" width="6" height="4" fill="'+ct+'"></rect>'; }
-  if (a.brille==="augenklappe") { var ck=fb("augenklappe","#22252E");
-    s += '<path d="M22 36 L68 41" stroke="'+ck+'" stroke-width="3"></path>'
-      +  '<rect x="30" y="38" width="16" height="14" rx="4" fill="'+ck+'"></rect>'; }
-  if (a.brille==="hornbrille") { var ch=fb("hornbrille","#C4534B");
-    s += '<rect x="27" y="37" width="17" height="14" rx="5" fill="none" stroke="'+ch+'" stroke-width="3"></rect>'
-      +  '<rect x="46" y="37" width="17" height="14" rx="5" fill="none" stroke="'+ch+'" stroke-width="3"></rect>'
-      +  '<rect x="43" y="42" width="4" height="3" fill="'+ch+'"></rect>'; }
-
-  if (a.hut==="deerstalker") { var cd=fb("deerstalker","#A07C52");
-    s += '<ellipse cx="45" cy="27" rx="33" ry="7" fill="'+cd+'"></ellipse>'
-      +  '<path d="M25 27 q20 -23 40 0 z" fill="'+cd+'"></path>'
-      +  '<ellipse cx="20" cy="30" rx="7" ry="9" fill="'+cd+'"></ellipse>'
-      +  '<ellipse cx="70" cy="30" rx="7" ry="9" fill="'+cd+'"></ellipse>'; }
-  if (a.hut==="kappe") { var cka=fb("kappe","#B8483F");
-    s += '<path d="M24 26 q21 -22 42 0 z" fill="'+cka+'"></path>'
-      +  '<ellipse cx="60" cy="27" rx="22" ry="5" fill="'+cka+'" opacity=".75"></ellipse>'; }
-  if (a.hut==="wollmuetze") { var cw=fb("wollmuetze","#4E7FBF");
-    s += '<path d="M24 28 q21 -26 42 0 z" fill="'+cw+'"></path>'
-      +  '<rect x="22" y="25" width="46" height="8" rx="4" fill="'+cw+'" opacity=".7"></rect>'
-      +  '<circle cx="45" cy="6" r="7" fill="#EAF1FA"></circle>'; }
-  if (a.hut==="zylinder") { var cz=fb("zylinder","#37373F");
-    s += '<ellipse cx="45" cy="27" rx="30" ry="6" fill="'+cz+'"></ellipse>'
-      +  '<rect x="31" y="0" width="28" height="27" rx="3" fill="'+cz+'"></rect>'
-      +  '<rect x="31" y="19" width="28" height="6" fill="#B8483F"></rect>'; }
-  if (a.hut==="cowboy") { var cc=fb("cowboy","#C08F4E");
-    s += '<path d="M8 28 q37 -14 74 0 q-37 10 -74 0 z" fill="'+cc+'"></path>'
-      +  '<path d="M28 27 q17 -25 34 0 z" fill="'+cc+'"></path>'
-      +  '<rect x="28" y="20" width="34" height="5" fill="#6B4A25"></rect>'; }
-  if (a.hut==="dreispitz") { var cdr=fb("dreispitz","#2F3B4E");
-    s += '<path d="M12 28 q33 -30 66 0 q-33 -8 -66 0 z" fill="'+cdr+'"></path>'
-      +  '<path d="M26 26 q19 -20 38 0 z" fill="'+cdr+'"></path>'
-      +  '<circle cx="45" cy="14" r="4" fill="#E8D9A8"></circle>'; }
-  if (a.hut==="krone") { var cr=fb("krone","#EFC14E");
-    s += '<path d="M26 26 v-16 l7 7 l6 -12 l6 12 l7 -7 v16 z" fill="'+cr+'"></path>'
-      +  '<rect x="26" y="24" width="38" height="5" rx="2" fill="'+cr+'"></rect>'
-      +  '<circle cx="45" cy="20" r="2.5" fill="#C4534B"></circle>'; }
-  if (a.hut==="kopfhoerer") { var cko=fb("kopfhoerer","#4E7FBF");
-    s += '<path d="M22 44 v-6 a23 23 0 0 1 46 0 v6" stroke="#2E3138" stroke-width="6" fill="none"></path>'
-      +  '<rect x="15" y="36" width="12" height="18" rx="5" fill="'+cko+'"></rect>'
-      +  '<rect x="63" y="36" width="12" height="18" rx="5" fill="'+cko+'"></rect>'; }
-
+  /* --- Handobjekte gehören zum Körper und wandern mit nach außen --- */
   if (a.hand==="walkie") { var cwa=fb("walkie","#2E3138");
-    s += '<rect x="66" y="98" width="14" height="24" rx="4" fill="'+cwa+'"></rect>'
+    k += '<rect x="66" y="98" width="14" height="24" rx="4" fill="'+cwa+'"></rect>'
       +  '<rect x="69" y="102" width="8" height="6" rx="1" fill="#7BE3A0"></rect>'
       +  '<rect x="76" y="86" width="3" height="14" rx="1.5" fill="'+cwa+'"></rect>'; }
   if (a.hand==="notizblock") { var cno=fb("notizblock","#F7F1E3");
-    s += '<rect x="64" y="99" width="18" height="22" rx="2" fill="'+cno+'"></rect>'
+    k += '<rect x="64" y="99" width="18" height="22" rx="2" fill="'+cno+'"></rect>'
       +  '<rect x="67" y="104" width="12" height="2" fill="#B9B2A2"></rect>'
       +  '<rect x="67" y="109" width="12" height="2" fill="#B9B2A2"></rect>'
       +  '<rect x="67" y="114" width="8" height="2" fill="#B9B2A2"></rect>'; }
   if (a.hand==="fernglas") { var cfe=fb("fernglas","#2E3138");
-    s += '<rect x="63" y="100" width="9" height="18" rx="4" fill="'+cfe+'"></rect>'
+    k += '<rect x="63" y="100" width="9" height="18" rx="4" fill="'+cfe+'"></rect>'
       +  '<rect x="74" y="100" width="9" height="18" rx="4" fill="'+cfe+'"></rect>'
       +  '<rect x="70" y="105" width="6" height="4" fill="'+cfe+'"></rect>'
       +  '<circle cx="67.5" cy="103" r="3" fill="#BFE4F5"></circle>'
       +  '<circle cx="78.5" cy="103" r="3" fill="#BFE4F5"></circle>'; }
   if (a.hand==="kamera") { var cam=fb("kamera","#3A3A42");
-    s += '<rect x="63" y="100" width="20" height="15" rx="3" fill="'+cam+'"></rect>'
+    k += '<rect x="63" y="100" width="20" height="15" rx="3" fill="'+cam+'"></rect>'
       +  '<circle cx="73" cy="107" r="5" fill="#8FA3C8"></circle>'
       +  '<rect x="66" y="96" width="7" height="4" rx="1" fill="'+cam+'"></rect>'; }
   if (a.hand==="handlupe") { var clu=fb("handlupe","#D9A441");
-    s += '<circle cx="72" cy="103" r="9" fill="rgba(191,228,245,.6)" stroke="'+clu+'" stroke-width="3"></circle>'
+    k += '<circle cx="72" cy="103" r="9" fill="rgba(191,228,245,.6)" stroke="'+clu+'" stroke-width="3"></circle>'
       +  '<rect x="70" y="112" width="4" height="12" rx="2" fill="#8C6A45"></rect>'; }
   if (a.hand==="handlampe") { var cla=fb("handlampe","#4E7FBF");
-    s += '<rect x="67" y="104" width="11" height="18" rx="3" fill="'+cla+'"></rect>'
+    k += '<rect x="67" y="104" width="11" height="18" rx="3" fill="'+cla+'"></rect>'
       +  '<path d="M67 104 l-6 -9 h23 l-6 9 z" fill="#FFE0A3"></path>'; }
   if (a.hand==="becher") { var cbe=fb("becher","#F7F1E3");
-    s += '<path d="M66 100 h16 l-2 20 h-12 z" fill="'+cbe+'"></path>'
+    k += '<path d="M66 100 h16 l-2 20 h-12 z" fill="'+cbe+'"></path>'
       +  '<rect x="65" y="98" width="18" height="5" rx="2" fill="#C4534B"></rect>'
       +  '<path d="M72 92 q3 4 0 7" stroke="#D9D2C2" stroke-width="2" fill="none"></path>'; }
-  return s;
+
+  /* --- Kopf --- */
+  if (profil.form==="zopf") p += '<ellipse cx="70" cy="52" rx="9" ry="16" fill="'+profil.haar+'"></ellipse>';
+  if (profil.form==="lang") {
+    p += '<rect x="21" y="40" width="9" height="36" rx="4" fill="'+profil.haar+'"></rect>'
+      +  '<rect x="60" y="40" width="9" height="36" rx="4" fill="'+profil.haar+'"></rect>';
+  }
+  p += '<circle cx="45" cy="41" r="23" fill="'+profil.haar+'"></circle>';
+  if (profil.form==="locken") {
+    p += '<circle cx="27" cy="32" r="8" fill="'+profil.haar+'"></circle>'
+      +  '<circle cx="45" cy="24" r="9" fill="'+profil.haar+'"></circle>'
+      +  '<circle cx="63" cy="32" r="8" fill="'+profil.haar+'"></circle>';
+  }
+  p += '<circle cx="45" cy="45" r="21" fill="'+profil.haut+'"></circle>';
+  if (f >= 6) p += '<ellipse cx="45" cy="63" rx="'+(9+f*0.6)+'" ry="6" fill="'+profil.haut+'"></ellipse>';
+  if (f >= 5) p += '<ellipse cx="27" cy="51" rx="6" ry="5" fill="rgba(255,120,120,.30)"></ellipse>'
+                +  '<ellipse cx="63" cy="51" rx="6" ry="5" fill="rgba(255,120,120,.30)"></ellipse>';
+  p += '<circle cx="38" cy="45" r="2.8" fill="#2A2118"></circle>'
+    +  '<circle cx="52" cy="45" r="2.8" fill="#2A2118"></circle>'
+    +  '<path d="M39 55 q6 5 12 0" stroke="#2A2118" stroke-width="2" fill="none" stroke-linecap="round"></path>';
+
+  if (a.brille==="sonnen") { var cs=fb("sonnen","#1C1C22");
+    p += '<rect x="29" y="39" width="15" height="11" rx="4" fill="'+cs+'"></rect>'
+      +  '<rect x="46" y="39" width="15" height="11" rx="4" fill="'+cs+'"></rect>'
+      +  '<rect x="44" y="43" width="2" height="3" fill="'+cs+'"></rect>'; }
+  if (a.brille==="nachtsicht") { var cn=fb("nachtsicht","#2C3A2E");
+    p += '<rect x="26" y="37" width="38" height="14" rx="6" fill="'+cn+'"></rect>'
+      +  '<circle cx="36" cy="44" r="5" fill="#5BE07A"></circle>'
+      +  '<circle cx="54" cy="44" r="5" fill="#5BE07A"></circle>'; }
+  if (a.brille==="monokel") { var cm=fb("monokel","#D9A441");
+    p += '<circle cx="52" cy="45" r="9" fill="rgba(255,255,255,.3)" stroke="'+cm+'" stroke-width="2"></circle>'
+      +  '<path d="M60 50 q6 8 2 16" stroke="'+cm+'" stroke-width="1.5" fill="none"></path>'; }
+  if (a.brille==="taucher") { var ct=fb("taucher","#2E5E8C");
+    p += '<rect x="25" y="35" width="40" height="17" rx="8" fill="'+ct+'"></rect>'
+      +  '<rect x="29" y="38" width="32" height="11" rx="5" fill="#BFE4F5" opacity=".85"></rect>'
+      +  '<rect x="20" y="42" width="6" height="4" fill="'+ct+'"></rect>'
+      +  '<rect x="64" y="42" width="6" height="4" fill="'+ct+'"></rect>'; }
+  if (a.brille==="augenklappe") { var ck=fb("augenklappe","#22252E");
+    p += '<path d="M22 36 L68 41" stroke="'+ck+'" stroke-width="3"></path>'
+      +  '<rect x="30" y="38" width="16" height="14" rx="4" fill="'+ck+'"></rect>'; }
+  if (a.brille==="hornbrille") { var ch=fb("hornbrille","#C4534B");
+    p += '<rect x="27" y="37" width="17" height="14" rx="5" fill="none" stroke="'+ch+'" stroke-width="3"></rect>'
+      +  '<rect x="46" y="37" width="17" height="14" rx="5" fill="none" stroke="'+ch+'" stroke-width="3"></rect>'
+      +  '<rect x="43" y="42" width="4" height="3" fill="'+ch+'"></rect>'; }
+
+  if (a.hut==="deerstalker") { var cd=fb("deerstalker","#A07C52");
+    p += '<ellipse cx="45" cy="27" rx="33" ry="7" fill="'+cd+'"></ellipse>'
+      +  '<path d="M25 27 q20 -23 40 0 z" fill="'+cd+'"></path>'
+      +  '<ellipse cx="20" cy="30" rx="7" ry="9" fill="'+cd+'"></ellipse>'
+      +  '<ellipse cx="70" cy="30" rx="7" ry="9" fill="'+cd+'"></ellipse>'; }
+  if (a.hut==="kappe") { var cka=fb("kappe","#B8483F");
+    p += '<path d="M24 26 q21 -22 42 0 z" fill="'+cka+'"></path>'
+      +  '<ellipse cx="60" cy="27" rx="22" ry="5" fill="'+cka+'" opacity=".75"></ellipse>'; }
+  if (a.hut==="wollmuetze") { var cw=fb("wollmuetze","#4E7FBF");
+    p += '<path d="M24 28 q21 -26 42 0 z" fill="'+cw+'"></path>'
+      +  '<rect x="22" y="25" width="46" height="8" rx="4" fill="'+cw+'" opacity=".7"></rect>'
+      +  '<circle cx="45" cy="6" r="7" fill="#EAF1FA"></circle>'; }
+  if (a.hut==="zylinder") { var cz=fb("zylinder","#37373F");
+    p += '<ellipse cx="45" cy="27" rx="30" ry="6" fill="'+cz+'"></ellipse>'
+      +  '<rect x="31" y="0" width="28" height="27" rx="3" fill="'+cz+'"></rect>'
+      +  '<rect x="31" y="19" width="28" height="6" fill="#B8483F"></rect>'; }
+  if (a.hut==="cowboy") { var cc=fb("cowboy","#C08F4E");
+    p += '<path d="M8 28 q37 -14 74 0 q-37 10 -74 0 z" fill="'+cc+'"></path>'
+      +  '<path d="M28 27 q17 -25 34 0 z" fill="'+cc+'"></path>'
+      +  '<rect x="28" y="20" width="34" height="5" fill="#6B4A25"></rect>'; }
+  if (a.hut==="dreispitz") { var cdr=fb("dreispitz","#2F3B4E");
+    p += '<path d="M12 28 q33 -30 66 0 q-33 -8 -66 0 z" fill="'+cdr+'"></path>'
+      +  '<path d="M26 26 q19 -20 38 0 z" fill="'+cdr+'"></path>'
+      +  '<circle cx="45" cy="14" r="4" fill="#E8D9A8"></circle>'; }
+  if (a.hut==="krone") { var cr=fb("krone","#EFC14E");
+    p += '<path d="M26 26 v-16 l7 7 l6 -12 l6 12 l7 -7 v16 z" fill="'+cr+'"></path>'
+      +  '<rect x="26" y="24" width="38" height="5" rx="2" fill="'+cr+'"></rect>'
+      +  '<circle cx="45" cy="20" r="2.5" fill="#C4534B"></circle>'; }
+  if (a.hut==="kopfhoerer") { var cko=fb("kopfhoerer","#4E7FBF");
+    p += '<path d="M22 44 v-6 a23 23 0 0 1 46 0 v6" stroke="#2E3138" stroke-width="6" fill="none"></path>'
+      +  '<rect x="15" y="36" width="12" height="18" rx="5" fill="'+cko+'"></rect>'
+      +  '<rect x="63" y="36" width="12" height="18" rx="5" fill="'+cko+'"></rect>'; }
+
+  if (!f) return k + p;
+  return '<g transform="translate(45 0) scale('+bw.toFixed(3)+' 1) translate(-45 0)">' + k + '</g>'
+       + '<g transform="translate(45 45) scale('+kw.toFixed(3)+' 1) translate(-45 -45)">' + p + '</g>';
 }
 
-function figurBox(profil, angezogen, hoehe) {
-  return '<svg viewBox="0 0 90 150" width="'+(hoehe*0.6)+'" height="'+hoehe+'">'
-    + figurSVG(profil, angezogen) + '</svg>';
+function figurBox(profil, angezogen, hoehe, speck) {
+  return '<svg viewBox="-18 0 128 150" width="'+(hoehe*0.85)+'" height="'+hoehe+'">'
+    + figurSVG(profil, angezogen, speck) + '</svg>';
 }
 
 function bueroSVG() {
@@ -647,7 +672,8 @@ function speichereStand() {
       moebel:S.moebel, upgrades:S.upgrades, level:S.level, items:S.items, gold:S.gold,
       stufe:S.stufe, hilfeSerie:S.hilfeSerie, kapitel:S.kapitel, fallImKapitel:S.fallImKapitel,
       schurke:S.schurke, bande:S.bande, thema:S.thema, besitzer:S.besitzer,
-      fetzen:S.fetzen, geborgen:S.geborgen, archiv:S.archiv.slice(-60), paketKapitel:S.paketKapitel
+      fetzen:S.fetzen, geborgen:S.geborgen, archiv:S.archiv.slice(-60), paketKapitel:S.paketKapitel,
+      witz:S.witz, speck:S.speck
     }));
   } catch (e) { /* kein Zugriff */ }
 }
@@ -657,7 +683,7 @@ var S = {
   farben: {}, moebel: [], upgrades: [], level: 1, items: { lupe:1, hund:1, lampe:0 },
   gold: 0, stufe: 0, hilfeSerie: 0, kapitel: 1, fallImKapitel: 1,
   schurke: null, bande: null, thema: 0, besitzer: null, fetzen: 0, geborgen: [],
-  archiv: [], paketKapitel: 0,
+  archiv: [], paketKapitel: 0, witz: false, speck: 0,
   fall: null, gefunden: [], angeklagt: [], hilfeGenutzt: false,
   hell: false, erfolg: null, panel: null, farbwahl: null, dialog: null,
   spuerZone: null, neuesteSpur: null
@@ -674,11 +700,12 @@ function ladeSlot(i) {
     S.fallImKapitel=d.fallImKapitel||1; S.schurke=d.schurke; S.bande=d.bande;
     S.thema=d.thema||0; S.besitzer=d.besitzer; S.fetzen=d.fetzen||0;
     S.geborgen=d.geborgen||[]; S.archiv=d.archiv||[]; S.paketKapitel=d.paketKapitel||0;
+    S.witz=!!d.witz; S.speck=d.speck||0;
   } else {
     S.profil=null; S.besitz=[]; S.angezogen={hut:null,brille:null,kleidung:null,hand:null};
     S.farben={}; S.moebel=[]; S.upgrades=[]; S.level=1; S.items={lupe:1,hund:1,lampe:0};
     S.gold=0; S.stufe=0; S.hilfeSerie=0; S.kapitel=1; S.fallImKapitel=1;
-    S.archiv=[]; S.paketKapitel=0; S.schurke=null;
+    S.archiv=[]; S.paketKapitel=0; S.schurke=null; S.witz=false; S.speck=0;
   }
   if (!S.schurke) neuesKapitel();
   S.panel=null; S.dialog=null; S.farbwahl=null;
@@ -757,6 +784,7 @@ function kopfHTML() {
     + '/'+(FAELLE_JE_KAPITEL+1)+(istBossfall()?' 👑':'')+'</div></div></div>'
     + '<div style="display:flex;gap:6px;align-items:center">'
     + '<span class="gold">🪙 '+S.gold+'</span>'
+    + '<button class="kopf-knopf'+(S.witz?" witz-an":"")+'" data-act="witz">🍔</button>'
     + '<button class="kopf-knopf" data-act="staende">👥</button></div></div>';
 
   h += '<div class="fortschritt"><span class="zahl">'+S.level+(naechster?" / "+naechster.ab:"")
@@ -997,7 +1025,9 @@ function render() {
     else kl += " ziel";
     h += '<button class="'+kl+'" data-act="verd" data-id="'+v.id+'">'
       + (S.angeklagt.indexOf(v.id)>=0?'<span class="handschelle">🔗</span>':'')
-      + '<div class="figur">'+v.figur+'</div><div class="merkmale">';
+      + '<div class="figur"><span style="display:inline-block;transform:scaleX('
+      + (1 + Math.min(S.witz?S.speck:0,12)*0.035).toFixed(2)+')">'+v.figur+'</span></div>'
+      + '<div class="merkmale">';
     v.merkmale.forEach(function (m) {
       h += '<span'+(S.neuesteSpur===m?' class="treffer"':'')+'>'+katalog(m).icon+'</span>';
     });
@@ -1025,6 +1055,12 @@ function render() {
       + '<span class="huepft" style="font-size:34px">'+S.besitzer+'</span>'
       + '<span style="font-size:22px">💛</span></div>'
       + '<div style="font-size:24px;color:var(--lampe)">+ 🪙 '+e.gold+'</div>';
+    if (e.futter) {
+      h += '<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px">'
+        + '<span class="huepft" style="font-size:34px">'+e.futter+'</span>'
+        + '<span style="opacity:.6">→</span>'
+        + figurBox(S.profil, S.angezogen, 100) + '</div>';
+    }
     if (e.fetzen) h += '<div style="margin-top:10px">'+steckbriefHTML(S.schurke,S.fetzen,true)+'</div>';
     if (e.neuTeil) h += '<div class="neuteil">'+figurBox(S.profil,S.angezogen,110)+'</div>';
     h += '<button class="weiter" data-act="weiter">▶</button></div></div>';
@@ -1114,8 +1150,11 @@ function beschuldige(id, el) {
   });
   if (S.archiv.length>60) S.archiv = S.archiv.slice(-60);
 
+  var futter = null;
+  if (S.witz) { S.speck = Math.min((S.speck||0)+1, 12); futter = wuerfle(FUTTER); }
+
   S.erfolg = { taeter:taeterFiguren, gold:lohn, boss:boss, beute:S.fall.beute,
-               fetzen:neuFetzen, neuTeil:schalteTeilFrei() };
+               fetzen:neuFetzen, neuTeil:schalteTeilFrei(), futter:futter };
   speichereStand();
   render();
 }
@@ -1222,6 +1261,7 @@ app.addEventListener("click", function (ev) {
   if (act==="slot")     { ladeSlot(parseInt(z.getAttribute("data-i"),10)); return; }
   if (act==="loeschen") { loescheSlot(parseInt(z.getAttribute("data-i"),10)); renderStaende(); return; }
   if (act==="staende")  { S.slot = null; render(); return; }
+  if (act==="witz")     { S.witz = !S.witz; speichereStand(); render(); return; }
   if (act==="waehle")   { waehleFigur(parseInt(z.getAttribute("data-i"),10)); return; }
 
   if (act==="jakauf")   { fuehreKaufAus(); return; }
