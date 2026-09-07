@@ -1,5 +1,5 @@
 /* Legt die App beim ersten Aufruf ab. Danach startet sie auch ohne Netz. */
-var CACHE = "detektivbuero-v8";
+var CACHE = "detektivbuero-v9";
 var DATEIEN = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", function (e) {

@@ -140,8 +140,16 @@
   .modal { position:fixed; inset:0; background:rgba(14,23,41,.95); display:grid;
            place-items:center; padding:20px; overflow-y:auto; z-index:20; }
   .modal-inner { text-align:center; }
-  .neuteil { background:rgba(255,194,75,.16); border-radius:24px; padding:8px 14px;
-             display:inline-grid; place-items:center; margin-top:10px; }
+  .e-kopf { font-size:38px; line-height:1.1; }
+  .e-bande { font-size:26px; }
+  .e-jubel { font-size:32px; margin:2px 0 10px; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; max-width:330px; }
+  .chip { display:flex; align-items:center; gap:5px; background:rgba(255,255,255,.09);
+          border-radius:16px; padding:8px 12px; font-size:24px; }
+  .chip small { font-size:13px; color:var(--offen); }
+  .chip .pfeilchen { font-size:16px; opacity:.6; }
+  .chip.gold-chip { color:var(--lampe); font-weight:700; background:rgba(255,194,75,.18); }
+  .chip.teil-chip { background:rgba(255,194,75,.18); padding:4px 10px; }
   .weiter { background:var(--lampe); color:var(--tiefer); border-radius:20px; padding:14px 40px;
             font-size:28px; margin-top:18px; }
   .ja-nein { display:flex; gap:14px; justify-content:center; margin-top:22px; }
@@ -157,7 +165,13 @@
            border-radius:20px; padding:10px 14px; margin-bottom:10px; width:100%; }
   .stand.frei { justify-content:center; font-size:30px; padding:22px 0; opacity:.6; }
   .stand .info { text-align:left; font-size:14px; line-height:1.35; }
-  .stand .loesch { margin-left:auto; font-size:18px; opacity:.5; padding:6px 8px; }
+  .stand .loesch { font-size:18px; opacity:.55; padding:6px 6px; }
+  .transferfeld { width:100%; height:130px; margin-top:14px; border-radius:14px; padding:10px;
+                  font-family:ui-monospace,monospace; font-size:11px; line-height:1.35;
+                  background:rgba(0,0,0,.35); color:var(--papier);
+                  border:1px solid rgba(255,255,255,.18); resize:none; -webkit-user-select:text;
+                  user-select:text; }
+  .transfer-meldung { margin-top:10px; font-size:15px; color:var(--lampe); }
 
   @keyframes wackel { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px) rotate(-6deg)}
                       75%{transform:translateX(5px) rotate(6deg)} }
@@ -681,6 +695,88 @@ function bueroTiere() {
 }
 
 /* ============================================================
+   KULISSEN
+   Silhouetten hinter den Objekten. Bewusst blass und ohne harte
+   Kanten – die Szene soll lebendig wirken, aber kein Objekt
+   schwerer auffindbar machen.
+   ============================================================ */
+function baum(x, y, h, c1, c2) {
+  return '<rect x="'+(x-5)+'" y="'+y+'" width="10" height="'+h+'" fill="'+c2+'"></rect>'
+    + '<circle cx="'+x+'" cy="'+(y-14)+'" r="26" fill="'+c1+'"></circle>'
+    + '<circle cx="'+(x-19)+'" cy="'+(y-2)+'" r="19" fill="'+c1+'"></circle>'
+    + '<circle cx="'+(x+19)+'" cy="'+(y-4)+'" r="20" fill="'+c1+'"></circle>';
+}
+
+function ortDeko(ort) {
+  var g = '<g opacity="0.5">';
+  if (ort.name === "Park") {
+    g += '<path d="M0 250 q90 -40 180 -6 q90 34 180 -10 v40 H0 z" fill="#6FAF54"></path>'
+      +  baum(48, 208, 60, "#4E8C3F", "#6B4A25")
+      +  baum(196, 196, 68, "#57A047", "#6B4A25")
+      +  baum(320, 214, 54, "#4E8C3F", "#6B4A25")
+      +  '<ellipse cx="120" cy="300" rx="34" ry="12" fill="#79BC5C"></ellipse>'
+      +  '<ellipse cx="280" cy="330" rx="40" ry="14" fill="#79BC5C"></ellipse>';
+  }
+  if (ort.name === "Küche") {
+    g += '<rect x="0" y="196" width="360" height="14" fill="#C79358"></rect>'
+      +  '<rect x="0" y="210" width="360" height="52" fill="#D9A86F"></rect>'
+      +  '<rect x="24" y="222" width="70" height="30" rx="3" fill="#C08F55"></rect>'
+      +  '<rect x="112" y="222" width="70" height="30" rx="3" fill="#C08F55"></rect>'
+      +  '<rect x="200" y="222" width="70" height="30" rx="3" fill="#C08F55"></rect>'
+      +  '<rect x="40" y="96" width="120" height="10" rx="3" fill="#C79358"></rect>'
+      +  '<rect x="52" y="72" width="18" height="24" rx="3" fill="#E8CFA8"></rect>'
+      +  '<rect x="80" y="76" width="16" height="20" rx="3" fill="#E8CFA8"></rect>'
+      +  '<rect x="106" y="70" width="20" height="26" rx="3" fill="#E8CFA8"></rect>'
+      +  '<rect x="242" y="56" width="86" height="62" rx="4" fill="#BFE4F5"></rect>'
+      +  '<path d="M285 56 v62 M242 87 h86" stroke="#C79358" stroke-width="5"></path>';
+  }
+  if (ort.name === "Schule") {
+    g += '<rect x="52" y="58" width="220" height="96" rx="5" fill="#3E5B4A"></rect>'
+      +  '<rect x="60" y="66" width="204" height="80" rx="3" fill="#4A6B57"></rect>'
+      +  '<path d="M80 92 h70 M80 110 h110 M80 128 h60" stroke="#B9CDBF" stroke-width="4"></path>'
+      +  '<rect x="0" y="242" width="360" height="10" fill="#AEBDD2"></rect>'
+      +  '<rect x="26" y="252" width="94" height="34" rx="4" fill="#B7A183"></rect>'
+      +  '<rect x="140" y="252" width="94" height="34" rx="4" fill="#B7A183"></rect>'
+      +  '<rect x="254" y="252" width="94" height="34" rx="4" fill="#B7A183"></rect>';
+  }
+  if (ort.name === "Zoo") {
+    g += '<path d="M0 244 h360 v10 H0 z" fill="#A98F5E"></path>';
+    for (var i = 0; i <= 8; i++)
+      g += '<rect x="'+(6+i*44)+'" y="196" width="9" height="58" fill="#A98F5E"></rect>';
+    g += '<rect x="292" y="150" width="12" height="96" fill="#8A6A3E"></rect>'
+      +  '<path d="M298 150 q-40 -14 -46 12 q34 -8 46 6 z" fill="#4E8C5A"></path>'
+      +  '<path d="M298 150 q40 -16 48 10 q-36 -8 -48 6 z" fill="#57A047"></path>'
+      +  '<ellipse cx="90" cy="300" rx="52" ry="18" fill="#C8B183"></ellipse>'
+      +  '<ellipse cx="250" cy="342" rx="46" ry="16" fill="#C8B183"></ellipse>';
+  }
+  if (ort.name === "Strand") {
+    g += '<circle cx="58" cy="60" r="30" fill="#FFE9A8"></circle>'
+      +  '<rect x="0" y="186" width="360" height="52" fill="#5FC6D6"></rect>'
+      +  '<path d="M0 206 q26 -10 52 0 t52 0 t52 0 t52 0 t52 0 t52 0" stroke="#BFEDF2" '
+      +  'stroke-width="5" fill="none"></path>'
+      +  '<path d="M0 230 q26 -10 52 0 t52 0 t52 0 t52 0 t52 0 t52 0" stroke="#BFEDF2" '
+      +  'stroke-width="4" fill="none"></path>'
+      +  '<rect x="300" y="150" width="11" height="100" fill="#A8794A"></rect>'
+      +  '<path d="M306 150 q-44 -16 -50 12 q36 -10 50 6 z" fill="#4E9C6A"></path>'
+      +  '<path d="M306 150 q44 -18 52 10 q-38 -10 -52 6 z" fill="#5CAE78"></path>'
+      +  '<ellipse cx="120" cy="316" rx="46" ry="14" fill="#EBD6A2"></ellipse>';
+  }
+  if (ort.name === "Versteck") {
+    g += '<rect x="0" y="120" width="360" height="140" fill="#565062"></rect>';
+    for (var r = 0; r < 4; r++)
+      for (var c2 = 0; c2 < 7; c2++)
+        g += '<rect x="'+(6+c2*52+(r%2)*26)+'" y="'+(128+r*34)+'" width="46" height="28" rx="3" '
+          +  'fill="#615A6E"></rect>';
+    g += '<rect x="24" y="248" width="72" height="60" rx="4" fill="#7A6448"></rect>'
+      +  '<rect x="30" y="212" width="60" height="40" rx="4" fill="#8A7152"></rect>'
+      +  '<rect x="268" y="240" width="76" height="68" rx="4" fill="#7A6448"></rect>'
+      +  '<path d="M180 0 v52" stroke="#3A3646" stroke-width="4"></path>'
+      +  '<circle cx="180" cy="62" r="16" fill="#FFE0A3"></circle>';
+  }
+  return g + '</g>';
+}
+
+/* ============================================================
    FALLERZEUGUNG
    Invariante: nach Auswertung aller Spuren bleibt genau die
    Tätergruppe übrig – nie mehrdeutig, nie unlösbar.
@@ -797,9 +893,34 @@ function neuesKapitel() {
 function thema() { return THEMEN[S.thema]; }
 function istBossfall() { return S.fallImKapitel > FAELLE_JE_KAPITEL; }
 
+/* Ab Level 25 geht es endlos weiter: alle 15 Level ein Stern mehr,
+   damit der Fortschrittsbalken nie stehenbleibt. */
+var STERN_AB = 25, STERN_SCHRITT = 15;
+
 function rangVon(level) {
+  if (level >= STERN_AB) {
+    var st = Math.floor((level-STERN_AB)/STERN_SCHRITT) + 1;
+    return { ab: STERN_AB + (st-1)*STERN_SCHRITT, name: "Meisterdetektiv",
+             abzeichen: "🏅", sterne: st };
+  }
   for (var i=0;i<RAENGE.length;i++) if (level>=RAENGE[i].ab) return RAENGE[i];
   return RAENGE[RAENGE.length-1];
+}
+
+function naechsterRang(level) {
+  if (level >= STERN_AB - 0) {
+    var st = Math.floor((level-STERN_AB)/STERN_SCHRITT) + 1;
+    return { ab: STERN_AB + st*STERN_SCHRITT, abzeichen: "🏅", sterne: st+1 };
+  }
+  var kand = null;
+  for (var i=0;i<RAENGE.length;i++) if (RAENGE[i].ab > level)
+    if (!kand || RAENGE[i].ab < kand.ab) kand = RAENGE[i];
+  return kand;
+}
+
+function rangText(r) {
+  if (!r.sterne) return r.name;
+  return r.name + " " + (r.sterne > 5 ? "⭐×"+r.sterne : Array(r.sterne+1).join("⭐"));
 }
 function traegtWirkung(w) {
   for (var i=0;i<SLOTS.length;i++) {
@@ -843,6 +964,30 @@ function leseAktiv() {
   try { var r = window.localStorage.getItem(BASIS_KEY + ".aktiv"); return r===null?null:parseInt(r,10); }
   catch (e) { return null; }
 }
+/* Export/Import: der ganze Spielstand als Textcode. Versicherung
+   gegen geleerten Browserspeicher und Weg auf ein neues Handy.
+   Umweg über encodeURIComponent, weil btoa an Emoji scheitert. */
+function standAlsCode(i) {
+  var d = leseSlot(i);
+  if (!d) return "";
+  try { return btoa(unescape(encodeURIComponent(JSON.stringify(d)))); }
+  catch (e) { return ""; }
+}
+function codeAlsStand(code) {
+  try {
+    var d = JSON.parse(decodeURIComponent(escape(atob(code.replace(/\s+/g,"")))));
+    return (d && d.profil) ? d : null;
+  } catch (e) { return null; }
+}
+function schreibeSlot(i, d) {
+  try { window.localStorage.setItem(slotKey(i), JSON.stringify(d)); return true; }
+  catch (e) { return false; }
+}
+function ersterFreierSlot() {
+  for (var i=0;i<ANZ_STAENDE;i++) if (!leseSlot(i)) return i;
+  return -1;
+}
+
 function speichereStand() {
   if (S.slot===null) return;
   try {
@@ -867,7 +1012,7 @@ var S = {
   tiere: [], tierAktiv: null, hq: 0, dinge: [], freiRaus: [],
   fall: null, gefunden: [], angeklagt: [], hilfeGenutzt: false,
   hell: false, erfolg: null, panel: null, farbwahl: null, dialog: null,
-  spuerZone: null, neuesteSpur: null
+  spuerZone: null, neuesteSpur: null, transfer: null
 };
 
 function ladeSlot(i) {
@@ -936,14 +1081,34 @@ function renderStaende() {
       h += '<div class="stand"><button data-act="slot" data-i="'+i+'" '
         +  'style="display:flex;align-items:center;gap:12px;flex:1;text-align:left">'
         +  figurBox(d.profil, d.angezogen||{}, 62)
-        +  '<span class="info"><b>' + rangVon(d.level||1).name + '</b><br>'
+        +  '<span class="info"><b>' + rangText(rangVon(d.level||1)) + '</b><br>'
         +  '📖 ' + (d.kapitel||1) + ' · 🔎 ' + (d.level||1) + ' · 🪙 ' + (d.gold||0) + '</span>'
-        +  '</button><button class="loesch" data-act="loeschen" data-i="'+i+'">🗑️</button></div>';
+        +  '</button><button class="loesch" data-act="export" data-i="'+i+'">📤</button>'
+        +  '<button class="loesch" data-act="loeschen" data-i="'+i+'">🗑️</button></div>';
     } else {
       h += '<button class="stand frei" data-act="slot" data-i="'+i+'">➕</button>';
     }
   }
+  if (ersterFreierSlot() >= 0)
+    h += '<button class="stand frei" data-act="importfenster" style="font-size:20px">📥</button>';
+  if (S.transfer) h += renderTransfer();
   app.innerHTML = h;
+}
+
+/* Fenster zum Kopieren oder Einfügen eines Spielstand-Codes. */
+function renderTransfer() {
+  var t = S.transfer;
+  var h = '<div class="modal"><div class="modal-inner pop" style="width:100%;max-width:330px">'
+    + '<div style="font-size:40px">'+(t.modus==="export"?"📤":"📥")+'</div>'
+    + '<textarea id="transferfeld" class="transferfeld" '
+    + (t.modus==="export"?'readonly':'placeholder="…"')+'>'
+    + (t.text||"") + '</textarea>';
+  if (t.meldung) h += '<div class="transfer-meldung">'+t.meldung+'</div>';
+  h += '<div class="ja-nein">'
+    + '<button class="ja" data-act="'+(t.modus==="export"?"kopieren":"importieren")+'">'
+    + (t.modus==="export"?"⧉":"✓")+'</button>'
+    + '<button class="nein" data-act="transferzu">✕</button></div></div></div>';
+  return h;
 }
 
 function renderWahl() {
@@ -957,13 +1122,12 @@ function renderWahl() {
 }
 
 function kopfHTML() {
-  var rang = rangVon(S.level), naechster = null;
-  for (var ri=RAENGE.length-1; ri>=0; ri--) if (RAENGE[ri].ab > S.level) { naechster = RAENGE[ri]; break; }
+  var rang = rangVon(S.level), naechster = naechsterRang(S.level);
   var anteil = naechster ? (S.level-rang.ab)/(naechster.ab-rang.ab) : 1;
 
   var h = '<div class="kopf"><div class="kopf-links">'
     + '<span style="font-size:26px">'+rang.abzeichen+'</span>'
-    + '<div><div class="rang-name">'+rang.name+'</div>'
+    + '<div><div class="rang-name">'+rangText(rang)+'</div>'
     + '<div class="rang-sub">📖 '+S.kapitel+' · '+Math.min(S.fallImKapitel,FAELLE_JE_KAPITEL+1)
     + '/'+(FAELLE_JE_KAPITEL+1)+(istBossfall()?' 👑':'')+'</div></div></div>'
     + '<div style="display:flex;gap:6px;align-items:center">'
@@ -1235,7 +1399,8 @@ function render() {
   h += '<div class="szene-huelle"><svg class="szene" viewBox="0 0 '+BREITE+' '+HOEHE+'" '
     + 'style="background:'+f.ort.himmel+'">'
     + '<rect x="0" y="'+(HOEHE*0.42)+'" width="'+BREITE+'" height="'+(HOEHE*0.58)
-    + '" fill="'+f.ort.boden+'"></rect>';
+    + '" fill="'+f.ort.boden+'"></rect>'
+    + ortDeko(f.ort);
 
   if (S.spuerZone) {
     h += '<rect x="'+S.spuerZone.x+'" y="'+S.spuerZone.y+'" width="'+S.spuerZone.w
@@ -1291,26 +1456,23 @@ function render() {
   h += '</div>';
 
   if (S.erfolg) {
+    // Kompakt: eine Kopfzeile, darunter eine Reihe kleiner Belohnungs-
+    // plättchen. Vorher stand alles untereinander und man musste scrollen.
     var e = S.erfolg;
     h += '<div class="modal"><div class="modal-inner pop">'
-      + '<div style="font-size:44px">'+e.taeter.join(" ")+' '+S.bande+'</div>'
-      + '<div style="font-size:34px;margin:2px 0 6px">'+(e.boss?"👑🎉":"🎉")+'</div>'
-      // Die Beute geht an ihren Besitzer zurück
-      + '<div style="display:flex;align-items:center;justify-content:center;gap:10px;'
-      + 'background:rgba(61,214,140,.16);border-radius:18px;padding:10px 16px;margin:6px 0">'
-      + '<span style="font-size:30px">'+e.beute+'</span><span style="opacity:.6">→</span>'
-      + '<span class="huepft" style="font-size:34px">'+S.besitzer+'</span>'
-      + '<span style="font-size:22px">💛</span></div>'
-      + '<div style="font-size:24px;color:var(--lampe)">+ 🪙 '+e.gold+'</div>';
-    if (e.futter) {
-      h += '<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px">'
-        + '<span class="huepft" style="font-size:34px">'+e.futter+'</span>'
-        + '<span style="opacity:.6">→</span>'
-        + figurBox(S.profil, S.angezogen, 100) + '</div>';
+      + '<div class="e-kopf">'+e.taeter.join(" ")+' 🔗 <span class="e-bande">'+S.bande+'</span></div>'
+      + '<div class="e-jubel">'+(e.boss?"👑🎉":"🎉")+'</div>'
+      + '<div class="chips">'
+      + '<span class="chip gold-chip">🪙 '+e.gold+'</span>'
+      + '<span class="chip">'+e.beute+' <span class="pfeilchen">→</span> '
+      + '<span class="huepft">'+S.besitzer+'</span> 💛</span>';
+    if (e.futter) h += '<span class="chip"><span class="huepft">'+e.futter+'</span> 😋</span>';
+    if (e.fetzen) {
+      var neu = S.fetzen===1 ? S.schurke.figur : katalog(S.schurke.merkmale[S.fetzen-2]).icon;
+      h += '<span class="chip">🕵️ '+neu+' <small>'+S.fetzen+'/5</small></span>';
     }
-    if (e.fetzen) h += '<div style="margin-top:10px">'+steckbriefHTML(S.schurke,S.fetzen,true)+'</div>';
-    if (e.neuTeil) h += '<div class="neuteil">'+figurBox(S.profil,S.angezogen,110)+'</div>';
-    h += '<button class="weiter" data-act="weiter">▶</button></div></div>';
+    if (e.neuTeil) h += '<span class="chip teil-chip">'+figurBox(S.profil,S.angezogen,74)+'</span>';
+    h += '</div><button class="weiter" data-act="weiter">▶</button></div></div>';
   }
   if (S.dialog) h += renderDialog();
 
@@ -1531,6 +1693,35 @@ app.addEventListener("click", function (ev) {
 
   if (act==="slot")     { ladeSlot(parseInt(z.getAttribute("data-i"),10)); return; }
   if (act==="loeschen") { loescheSlot(parseInt(z.getAttribute("data-i"),10)); renderStaende(); return; }
+  if (act==="export") {
+    S.transfer = { modus:"export", text: standAlsCode(parseInt(z.getAttribute("data-i"),10)) };
+    renderStaende(); return;
+  }
+  if (act==="importfenster") { S.transfer = { modus:"import", text:"" }; renderStaende(); return; }
+  if (act==="transferzu")    { S.transfer = null; renderStaende(); return; }
+  if (act==="kopieren") {
+    var feld = document.getElementById("transferfeld");
+    if (feld) {
+      feld.select(); feld.setSelectionRange(0, 999999);
+      var ok = false;
+      try { ok = document.execCommand("copy"); } catch (e) { /* egal */ }
+      if (!ok && navigator.clipboard) navigator.clipboard.writeText(feld.value);
+      S.transfer.meldung = "⧉ ✓";
+      renderStaende();
+    }
+    return;
+  }
+  if (act==="importieren") {
+    var feld2 = document.getElementById("transferfeld");
+    var d = feld2 ? codeAlsStand(feld2.value) : null;
+    var frei = ersterFreierSlot();
+    if (!d)            { S.transfer.meldung = "✕"; renderStaende(); return; }
+    if (frei < 0)      { S.transfer.meldung = "🗑️ ?"; renderStaende(); return; }
+    schreibeSlot(frei, d);
+    S.transfer = null;
+    renderStaende();
+    return;
+  }
   if (act==="staende")  { S.slot = null; render(); return; }
   if (act==="witz")     { S.witz = !S.witz; speichereStand(); render(); return; }
   if (act==="waehle")   { waehleFigur(parseInt(z.getAttribute("data-i"),10)); return; }
