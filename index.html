@@ -137,6 +137,7 @@
   .steckbrief .fig { font-size:24px; }
   .steckbrief .m { font-size:17px; }
   .steckbrief .fehlt { opacity:.35; }
+  .steckbrief.narbe { background:#E8C4B4; box-shadow:inset 0 0 0 3px var(--rot); }
   .akte { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,.07);
           border-radius:12px; padding:8px 10px; margin-bottom:5px; font-size:20px; }
   .akte .nr { font-size:12px; color:var(--offen); min-width:26px; }
@@ -188,6 +189,7 @@
   .chip .pfeilchen { font-size:16px; opacity:.6; }
   .chip.gold-chip { color:var(--lampe); font-weight:700; background:rgba(255,194,75,.18); }
   .chip.teil-chip { background:rgba(255,194,75,.18); padding:4px 10px; }
+  .chip.flucht-chip { background:rgba(255,107,90,.2); }
   .weiter { background:var(--lampe); color:var(--tiefer); border-radius:20px; padding:14px 40px;
             font-size:28px; margin-top:18px; }
   .ja-nein { display:flex; gap:14px; justify-content:center; margin-top:22px; }
@@ -210,6 +212,8 @@
                   border:1px solid rgba(255,255,255,.18); resize:none; -webkit-user-select:text;
                   user-select:text; }
   .transfer-meldung { margin-top:10px; font-size:15px; color:var(--lampe); }
+  .hochhaus { display:flex; align-items:flex-end; justify-content:center; gap:10px; margin-bottom:8px; }
+  .hochhaus-zahl { font-size:15px; font-weight:700; color:var(--lampe); }
   .version { text-align:center; font-size:12px; color:var(--offen); opacity:.55; margin-top:14px; }
 
   @keyframes wackel { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px) rotate(-6deg)}
@@ -262,19 +266,44 @@
       der Bossfall gegen den Anführer. Danach neues Kapitel.
    ============================================================ */
 
+/* EIN Topf für alles. Jedes Symbol kann in einem Fall Spur sein und
+   im nächsten bloßer Ablenker – vorher gab es zwei getrennte Listen,
+   dadurch waren Spuren an zwölf immer gleichen Dingen erkennbar. */
 var KATALOG = [
-  { id:"stiefel", icon:"🥾" }, { id:"brille",    icon:"👓" },
-  { id:"hund",    icon:"🐕" }, { id:"muetze",    icon:"🧢" },
-  { id:"rad",     icon:"🚲" }, { id:"pinsel",    icon:"🖌️" },
-  { id:"schlues", icon:"🔑" }, { id:"schirm",    icon:"☂️" },
-  { id:"gitarre", icon:"🎸" }, { id:"keks",      icon:"🍪" },
-  { id:"katze",   icon:"🐈" }, { id:"handschuh", icon:"🧤" }
+  { id:"stiefel",  icon:"🥾" }, { id:"marienkaefer", icon:"🐞" },
+  { id:"brille",   icon:"👓" }, { id:"apfel",        icon:"🍎" },
+  { id:"hund",     icon:"🐕" }, { id:"sonnenblume",  icon:"🌻" },
+  { id:"muetze",   icon:"🧢" }, { id:"ball",         icon:"⚽" },
+  { id:"rad",      icon:"🚲" }, { id:"pilz",         icon:"🍄" },
+  { id:"pinsel",   icon:"🖌️" }, { id:"socken",      icon:"🧦" },
+  { id:"schlues",  icon:"🔑" }, { id:"buecher",      icon:"📚" },
+  { id:"schirm",   icon:"☂️" }, { id:"becher",       icon:"🥤" },
+  { id:"gitarre",  icon:"🎸" }, { id:"schnecke",     icon:"🐌" },
+  { id:"keks",     icon:"🍪" }, { id:"banane",       icon:"🍌" },
+  { id:"katze",    icon:"🐈" }, { id:"biene",        icon:"🐝" },
+  { id:"handschuh",icon:"🧤" }, { id:"karotte",      icon:"🥕" },
+  { id:"uhr",      icon:"⌚" }, { id:"trauben",      icon:"🍇" },
+  { id:"rucksack", icon:"🎒" }, { id:"puzzle",       icon:"🧩" },
+  { id:"teddy",    icon:"🧸" }, { id:"auto",         icon:"🚗" },
+  // Ab Kapitel 21 kommen die folgenden nach und nach dazu
+  { id:"vogel",    icon:"🐦" }, { id:"korb",         icon:"🧺" },
+  { id:"fisch",    icon:"🐟" }, { id:"wuerfel",      icon:"🎲" },
+  { id:"stift",    icon:"✏️" }, { id:"luftballon",  icon:"🎈" },
+  { id:"hase",     icon:"🐇" }, { id:"blatt",        icon:"🍂" },
+  { id:"melone",   icon:"🍉" }, { id:"saft",         icon:"🍹" },
+  { id:"ziel",     icon:"🎯" }, { id:"windrad",      icon:"🎏" },
+  { id:"magnet",   icon:"🧲" }, { id:"erde",         icon:"🌍" },
+  { id:"glocke",   icon:"🔔" }, { id:"kaktus",       icon:"🌵" }
 ];
 
-var FIGUREN  = ["👨","👩","👦","👧","🧒","🧓","👵","👴","👱","🧔"];
-var ABLENKER = ["🍎","🌻","⚽","🎏","🐞","🍄","🧺","🧦","📚","🥤",
-                "🎲","🎈","🐌","🍌","🍂","🍹","🐝","🥕","🍇","🧩","🚗","🌍"];
+/* Dreißig Symbole von Anfang an, alle 20 Kapitel acht weitere.
+   Aus demselben Topf werden Merkmale UND Ablenker gezogen. */
+function verfuegbareSymbole() {
+  var n = Math.min(30 + Math.floor((S.kapitel-1)/20)*8, KATALOG.length);
+  return KATALOG.slice(0, n);
+}
 
+var FIGUREN  = ["👨","👩","👦","👧","🧒","🧓","👵","👴","👱","🧔"];
 /* Bandenzeichen: wird beim Lösen sichtbar und verknüpft die Fälle. */
 var BANDEN = ["🦊","🦉","🐍","🕷️","🦇","🐙","🐺","🦅"];
 
@@ -294,14 +323,25 @@ var THEMEN = [
   { ziel:"🍽️", teile:["🍳","🥄","🧁","🥛","🥨"] }
 ];
 
+/* abKapitel: ab wann der Ort in der Stadt auftaucht. */
 var ORTE = [
-  { name:"Park",   himmel:"#7FC7E8", boden:"#8FD16A" },
-  { name:"Küche",  himmel:"#FFD9A0", boden:"#E8B27A" },
-  { name:"Schule", himmel:"#A8C6F0", boden:"#C7D4E8" },
-  { name:"Zoo",    himmel:"#FFE39B", boden:"#D9C089" },
-  { name:"Strand", himmel:"#8FE3E0", boden:"#F2DFAE" },
-  { name:"Versteck", himmel:"#5B6480", boden:"#4A4453" }
+  { name:"Park",     himmel:"#7FC7E8", boden:"#8FD16A", abKapitel:1  },
+  { name:"Küche",    himmel:"#FFD9A0", boden:"#E8B27A", abKapitel:1  },
+  { name:"Schule",   himmel:"#A8C6F0", boden:"#C7D4E8", abKapitel:1  },
+  { name:"Zoo",      himmel:"#FFE39B", boden:"#D9C089", abKapitel:1  },
+  { name:"Strand",   himmel:"#8FE3E0", boden:"#F2DFAE", abKapitel:1  },
+  { name:"Bahnhof",  himmel:"#B9C4D6", boden:"#8E93A0", abKapitel:10 },
+  { name:"Museum",   himmel:"#E4D8C4", boden:"#C3B49B", abKapitel:20 },
+  { name:"Hafen",    himmel:"#9FD3E8", boden:"#7FA8B8", abKapitel:30 },
+  { name:"Jahrmarkt",himmel:"#3C3A6B", boden:"#5B4E86", abKapitel:40 },
+  { name:"Bergwerk", himmel:"#6A5A4E", boden:"#4E4238", abKapitel:50 }
 ];
+var VERSTECK = { name:"Versteck", himmel:"#5B6480", boden:"#4A4453" };
+
+function freieOrte() {
+  var f = ORTE.filter(function (o) { return S.kapitel >= o.abKapitel; });
+  return f.length ? f : [ORTE[0]];
+}
 
 var RAENGE = [
   { ab:25, name:"Meisterdetektiv", abzeichen:"🏅" },
@@ -374,14 +414,14 @@ var TIERE = [
   { id:"fuchs",        preis:800, sym:"🦊", wirkung:"entlarv" }
 ];
 
-/* Große Anschaffungen, auf die man lange spart. */
+/* Große Anschaffungen. Das Hochhaus ist die einzige Ausgabe, die nie
+   endet: jede Etage kostet das Anderthalbfache der vorigen. Nach zwanzig
+   Etagen sind das über 100.000 – damit kann Gold nie wertlos werden. */
 var ZIELE = [
-  { id:"hq1",      preis:300,  sym:"🏢", art:"hq",   stufe:1 },
-  { id:"auto",     preis:250,  sym:"🚙", art:"ding" },
-  { id:"hq2",      preis:800,  sym:"🏬", art:"hq",   stufe:2 },
-  { id:"zeppelin", preis:1000, sym:"🎈", art:"ding" },
-  { id:"hq3",      preis:2000, sym:"🏛️", art:"hq",   stufe:3 }
+  { id:"auto",     preis:250,  sym:"🚙" },
+  { id:"zeppelin", preis:1000, sym:"🎈" }
 ];
+function etagenPreis(n) { return Math.round(300 * Math.pow(1.5, n)); }
 
 function tierVon(id){ for(var i=0;i<TIERE.length;i++) if(TIERE[i].id===id) return TIERE[i]; return null; }
 function zielVon(id){ for(var i=0;i<ZIELE.length;i++) if(ZIELE[i].id===id) return ZIELE[i]; return null; }
@@ -713,6 +753,23 @@ function wandFarbe() {
   return ["#2A3A57","#2E4468","#33507C","#3A5C90"][Math.min(S.hq,3)];
 }
 
+/* Seitenansicht des Hochhauses. Über zwölf Etagen wird gestapelt
+   gezeichnet und der Rest als Zahl angehängt, sonst wird es zu hoch. */
+function hochhausSVG(etagen, hoehe) {
+  var sicht = Math.min(etagen, 12);
+  var h = 14 + sicht*13;
+  var s = '<svg viewBox="0 0 70 '+h+'" width="'+(hoehe*70/h)+'" height="'+hoehe+'">'
+        + '<path d="M8 14 L35 0 L62 14 z" fill="#C4534B"></path>';
+  for (var i = 0; i < sicht; i++) {
+    var y = 14 + i*13;
+    s += '<rect x="10" y="'+y+'" width="50" height="13" fill="'+(i%2?"#4A5B7E":"#43536F")+'"></rect>'
+      +  '<rect x="16" y="'+(y+3)+'" width="10" height="7" fill="#FFE0A3"></rect>'
+      +  '<rect x="30" y="'+(y+3)+'" width="10" height="7" fill="#BFE4F5"></rect>'
+      +  '<rect x="44" y="'+(y+3)+'" width="10" height="7" fill="#FFE0A3"></rect>';
+  }
+  return s + '</svg>' + (etagen > 12 ? '<div style="font-size:15px">×'+etagen+'</div>' : '');
+}
+
 function bueroHinten() {
   var b = S.moebel, s = '';
   s += '<rect x="0" y="0" width="300" height="150" fill="'+wandFarbe()+'"></rect>'
@@ -888,6 +945,69 @@ function ortDeko(ort) {
       +  '<path d="M305 114 q40 -16 48 9 q-35 -9 -48 5 z" fill="#5CAE78"></path>'
       +  '<ellipse cx="120" cy="250" rx="42" ry="12" fill="#EBD6A2"></ellipse>';
   }
+  if (ort.name === "Bahnhof") {
+    g += '<rect x="0" y="150" width="360" height="10" fill="#6E7480"></rect>'
+      +  '<rect x="0" y="176" width="360" height="7" fill="#5A606B"></rect>'
+      +  '<rect x="0" y="196" width="360" height="7" fill="#5A606B"></rect>';
+    for (var b1 = 0; b1 < 9; b1++)
+      g += '<rect x="'+(4+b1*42)+'" y="183" width="34" height="6" fill="#7A6448"></rect>';
+    g += '<rect x="30" y="86" width="150" height="64" rx="4" fill="#8E93A0"></rect>'
+      +  '<rect x="44" y="98" width="34" height="34" rx="3" fill="#BFE4F5"></rect>'
+      +  '<rect x="90" y="98" width="34" height="34" rx="3" fill="#BFE4F5"></rect>'
+      +  '<circle cx="152" cy="114" r="17" fill="#F2ECDC"></circle>'
+      +  '<path d="M152 114 v-10 M152 114 h7" stroke="#2A2118" stroke-width="3"></path>'
+      +  '<rect x="240" y="72" width="8" height="78" fill="#5A606B"></rect>'
+      +  '<rect x="228" y="66" width="32" height="12" rx="3" fill="#5A606B"></rect>';
+  }
+  if (ort.name === "Museum") {
+    g += '<rect x="40" y="60" width="280" height="14" fill="#D8CAB0"></rect>'
+      +  '<path d="M180 30 l150 30 H30 z" fill="#E8DCC0"></path>';
+    for (var m1 = 0; m1 < 6; m1++)
+      g += '<rect x="'+(52+m1*50)+'" y="74" width="20" height="86" rx="3" fill="#D8CAB0"></rect>';
+    g += '<rect x="0" y="160" width="360" height="10" fill="#B8A88C"></rect>'
+      +  '<rect x="250" y="176" width="52" height="52" rx="4" fill="#C9BBA0"></rect>'
+      +  '<circle cx="276" cy="196" r="12" fill="#9E8F76"></circle>'
+      +  '<rect x="44" y="182" width="46" height="34" rx="3" fill="#C9BBA0"></rect>';
+  }
+  if (ort.name === "Hafen") {
+    g += '<rect x="0" y="130" width="360" height="52" fill="#4E93AE"></rect>'
+      +  '<path d="M0 146 q26 -9 52 0 t52 0 t52 0 t52 0 t52 0 t52 0" stroke="#8FCBDE" '
+      +  'stroke-width="4" fill="none"></path>'
+      +  '<rect x="0" y="182" width="360" height="12" fill="#8A7152"></rect>'
+      +  '<path d="M40 130 h120 l-14 -46 h-92 z" fill="#C4534B"></path>'
+      +  '<rect x="70" y="52" width="7" height="34" fill="#F2ECDC"></rect>'
+      +  '<path d="M77 54 l34 12 l-34 12 z" fill="#F2ECDC"></path>'
+      +  '<rect x="232" y="104" width="10" height="80" fill="#6E7480"></rect>'
+      +  '<rect x="232" y="104" width="76" height="9" fill="#6E7480"></rect>'
+      +  '<rect x="300" y="113" width="4" height="26" fill="#6E7480"></rect>'
+      +  '<circle cx="186" cy="196" r="12" fill="#7A6448"></circle>'
+      +  '<circle cx="214" cy="196" r="12" fill="#7A6448"></circle>';
+  }
+  if (ort.name === "Jahrmarkt") {
+    g += '<circle cx="86" cy="118" r="62" fill="none" stroke="#E8CFA8" stroke-width="7"></circle>';
+    for (var j1 = 0; j1 < 8; j1++) {
+      var w = j1*Math.PI/4;
+      g += '<path d="M86 118 L'+(86+Math.cos(w)*62).toFixed(0)+' '+(118+Math.sin(w)*62).toFixed(0)
+        +  '" stroke="#E8CFA8" stroke-width="4"></path>'
+        +  '<circle cx="'+(86+Math.cos(w)*62).toFixed(0)+'" cy="'+(118+Math.sin(w)*62).toFixed(0)
+        +  '" r="7" fill="#EFC14E"></circle>';
+    }
+    g += '<path d="M232 150 l50 -46 l50 46 z" fill="#C4534B"></path>'
+      +  '<path d="M248 150 l34 -32 l34 32 z" fill="#F2ECDC"></path>'
+      +  '<rect x="236" y="150" width="92" height="34" fill="#E8CFA8"></rect>'
+      +  '<rect x="0" y="184" width="360" height="10" fill="#4A4270"></rect>';
+  }
+  if (ort.name === "Bergwerk") {
+    g += '<path d="M0 150 q60 -70 120 0 q60 -50 120 0 q60 -60 120 0 v52 H0 z" fill="#3E362E"></path>'
+      +  '<path d="M96 202 q0 -70 56 -70 q56 0 56 70 z" fill="#241E19"></path>'
+      +  '<rect x="86" y="128" width="10" height="76" fill="#7A6448"></rect>'
+      +  '<rect x="208" y="128" width="10" height="76" fill="#7A6448"></rect>'
+      +  '<rect x="80" y="120" width="144" height="11" rx="3" fill="#7A6448"></rect>'
+      +  '<rect x="0" y="196" width="360" height="8" fill="#5A4E42"></rect>';
+    for (var g1 = 0; g1 < 8; g1++)
+      g += '<rect x="'+(6+g1*46)+'" y="204" width="30" height="5" fill="#7A6448"></rect>';
+    g += '<circle cx="300" cy="60" r="13" fill="#FFE0A3"></circle>';
+  }
   if (ort.name === "Versteck") {
     g += '<rect x="0" y="92" width="360" height="110" fill="#565062"></rect>';
     for (var r = 0; r < 4; r++)
@@ -924,7 +1044,7 @@ function erzeugeFall(level, opt, fix, ort, beute) {
   var anzTaeter = o.komplize ? 2 : 1;
 
   for (var versuch=0; versuch<1500; versuch++) {
-    var poolBasis = mische(KATALOG);
+    var poolBasis = mische(verfuegbareSymbole());
     var pool = poolBasis.slice(0, Math.max(6, anzM+3));
     if (fix) {
       pool = fix.merkmale.map(katalog);
@@ -932,7 +1052,8 @@ function erzeugeFall(level, opt, fix, ort, beute) {
         if (pool.length < Math.max(6, anzM+3) && fix.merkmale.indexOf(k.id)<0) pool.push(k);
       });
     }
-    var figPool = fix ? mische(FIGUREN.filter(function(f){ return f!==fix.figur; })) : mische(FIGUREN);
+    var gesetzt = fix ? [fix.figur] : (o.fixFiguren || []);
+    var figPool = gesetzt.concat(mische(FIGUREN.filter(function(f){ return gesetzt.indexOf(f)<0; })));
 
     var verdaechtige = [];
     for (var i=0;i<anzV;i++) {
@@ -943,17 +1064,17 @@ function erzeugeFall(level, opt, fix, ort, beute) {
     }
     if (fix) { verdaechtige[0].figur = fix.figur; verdaechtige[0].merkmale = fix.merkmale.slice(0,anzM); }
 
-    var taeter = fix ? [verdaechtige[0]] : mische(verdaechtige).slice(0, anzTaeter);
-    var spurMerkmale;
+    var taeter;
+    if (fix) taeter = [verdaechtige[0]];
+    else if (o.fixFiguren) taeter = verdaechtige.slice(0, o.fixFiguren.length);
+    else taeter = mische(verdaechtige).slice(0, anzTaeter);
 
-    if (!fix && anzTaeter===2) {
-      var gemeinsam = taeter[0].merkmale.filter(function(m){ return taeter[1].merkmale.indexOf(m)>=0; });
-      if (gemeinsam.length < anzS) continue;
-      spurMerkmale = mische(gemeinsam).slice(0, anzS);
-    } else {
-      if (taeter[0].merkmale.length < anzS) continue;
-      spurMerkmale = mische(taeter[0].merkmale).slice(0, anzS);
-    }
+    // Alle Täter müssen genug gemeinsame Merkmale tragen
+    var gemeinsam = taeter[0].merkmale.filter(function (m) {
+      return taeter.every(function (t2) { return t2.merkmale.indexOf(m)>=0; });
+    });
+    if (gemeinsam.length < anzS) continue;
+    var spurMerkmale = mische(gemeinsam).slice(0, anzS);
 
     var fall = pruefe(verdaechtige, taeter, spurMerkmale, level, o.anzA||12, ort, beute);
     if (fall) return fall;
@@ -980,7 +1101,10 @@ function pruefe(verdaechtige, taeter, spurMerkmale, level, ablenkerAnz, ort, beu
   verdaechtige.forEach(function (v) {
     v.merkmale.forEach(function (m) { verboten[katalog(m).icon] = true; });
   });
-  var ablenker = mische(ABLENKER).filter(function (e) { return !verboten[e]; }).slice(0, ablenkerAnz);
+  // Ablenker kommen aus demselben Topf – nur eben nicht aus diesem Fall
+  var ablenker = mische(verfuegbareSymbole().map(function (k) { return k.icon; }))
+                   .filter(function (e) { return !verboten[e]; })
+                   .slice(0, ablenkerAnz);
 
   var freie = [];
   for (var sl=0; sl<SPALTEN*ZEILEN; sl++) if (BESETZT.indexOf(sl)<0) freie.push(sl);
@@ -1006,11 +1130,22 @@ function pruefe(verdaechtige, taeter, spurMerkmale, level, ablenkerAnz, ort, beu
 }
 
 /* --- Kampagne --- */
-function erzeugeSchurke() {
-  return { figur: wuerfle(FIGUREN), merkmale: mische(KATALOG).slice(0,4).map(function(k){ return k.id; }) };
+/* Ein Viertel der Bosse entkommt und taucht später wieder auf –
+   mit Narbe, mit einem Verdächtigen mehr und einem Eintrag im Ordner. */
+function erzeugeSchurke(alt) {
+  if (alt) { var w = JSON.parse(JSON.stringify(alt)); w.narbe = true; return w; }
+  return neuerSchurke();
+}
+
+function neuerSchurke() {
+  return { figur: wuerfle(FIGUREN),
+           merkmale: mische(verfuegbareSymbole()).slice(0,4).map(function(k){ return k.id; }) };
 }
 function neuesKapitel() {
-  S.schurke   = erzeugeSchurke();
+  // Entkommene kehren mit 40 % Wahrscheinlichkeit zurück
+  var rueck = (S.entkommen.length && Math.random() < 0.4) ? wuerfle(S.entkommen) : null;
+  if (rueck) S.entkommen = S.entkommen.filter(function (x) { return x !== rueck; });
+  S.schurke   = erzeugeSchurke(rueck);
   S.bande     = wuerfle(BANDEN);
   S.thema     = zufall(THEMEN.length);
   S.besitzer  = wuerfle(FIGUREN);
@@ -1018,7 +1153,9 @@ function neuesKapitel() {
   S.geborgen  = [];
 }
 function thema() { return THEMEN[S.thema]; }
-function istBossfall() { return S.fallImKapitel > FAELLE_JE_KAPITEL; }
+function istBossfall()  { return S.fallImKapitel > FAELLE_JE_KAPITEL; }
+/* Jedes zehnte Kapitel endet gegen drei alte Bekannte gleichzeitig. */
+function istSyndikat()  { return istBossfall() && S.kapitel % 10 === 0 && S.besiegte.length >= 3; }
 
 /* Ab Level 25 geht es endlos weiter: alle 15 Level ein Stern mehr,
    damit der Fortschrittsbalken nie stehenbleibt. */
@@ -1065,7 +1202,7 @@ function tierWirkt(w) {
 }
 function goldFuerFall(fall) {
   return 4 + 2*fall.spuren.length + (traegtWirkung("gold")?2:0) + (istBossfall()?10:0)
-       + (tierWirkt("gold") ? (tierStufe()>=3?2:1) : 0) + S.hq*2;
+       + (tierWirkt("gold") ? (tierStufe()>=3?2:1) : 0) + Math.min(S.hq,3)*2;
 }
 var PREISE = { lupe:4, hund:6, lampe:8 };
 
@@ -1075,7 +1212,7 @@ var PREISE = { lupe:4, hund:6, lampe:8 };
 /* Sichtbar im Spielstände-Menü – daran erkennst du, ob eine neue
    Fassung angekommen ist. Bei jeder Auslieferung hochzählen,
    zusammen mit der Cache-Nummer in sw.js. */
-var VERSION = "v12";
+var VERSION = "v14";
 
 var BASIS_KEY = "detektivbuero.v6";
 var ANZ_STAENDE = 3;
@@ -1130,7 +1267,8 @@ function speichereStand() {
       schurke:S.schurke, bande:S.bande, thema:S.thema, besitzer:S.besitzer,
       fetzen:S.fetzen, geborgen:S.geborgen, archiv:S.archiv.slice(-60), paketKapitel:S.paketKapitel,
       witz:S.witz, speck:S.speck, tiere:S.tiere, tierAktiv:S.tierAktiv,
-      hq:S.hq, dinge:S.dinge, gehege:S.gehege, farbtoepfe:S.farbtoepfe
+      hq:S.hq, dinge:S.dinge, gehege:S.gehege, farbtoepfe:S.farbtoepfe,
+      entkommen:S.entkommen, besiegte:S.besiegte
     }));
   } catch (e) { /* kein Zugriff */ }
 }
@@ -1142,7 +1280,7 @@ var S = {
   schurke: null, bande: null, thema: 0, besitzer: null, fetzen: 0, geborgen: [],
   archiv: [], paketKapitel: 0, witz: false, speck: 0,
   tiere: [], tierAktiv: null, hq: 0, dinge: [], freiRaus: [],
-  gehege: [], farbtoepfe: [], ladenTab: "hilfe",
+  gehege: [], farbtoepfe: [], ladenTab: "hilfe", entkommen: [], besiegte: [],
   fall: null, gefunden: [], angeklagt: [], hilfeGenutzt: false,
   hell: false, erfolg: null, panel: null, farbwahl: null, dialog: null,
   spuerZone: null, neuesteSpur: null, transfer: null
@@ -1162,12 +1300,14 @@ function ladeSlot(i) {
     S.witz=!!d.witz; S.speck=d.speck||0;
     S.tiere=d.tiere||[]; S.tierAktiv=d.tierAktiv||null; S.hq=d.hq||0; S.dinge=d.dinge||[];
     S.gehege=d.gehege||[]; S.farbtoepfe=d.farbtoepfe||[];
+    S.entkommen=d.entkommen||[]; S.besiegte=d.besiegte||[];
   } else {
     S.profil=null; S.besitz=[]; S.angezogen={hut:null,brille:null,kleidung:null,hand:null};
     S.farben={}; S.moebel=[]; S.upgrades=[]; S.level=1; S.items={lupe:1,hund:1,lampe:0};
     S.gold=0; S.stufe=0; S.hilfeSerie=0; S.kapitel=1; S.fallImKapitel=1;
     S.archiv=[]; S.paketKapitel=0; S.schurke=null; S.witz=false; S.speck=0;
     S.tiere=[]; S.tierAktiv=null; S.hq=0; S.dinge=[]; S.gehege=[]; S.farbtoepfe=[];
+    S.entkommen=[]; S.besiegte=[];
   }
   if (!S.schurke) neuesKapitel();
   S.panel=null; S.dialog=null; S.farbwahl=null;
@@ -1178,12 +1318,18 @@ function ladeSlot(i) {
 
 function baueFall() {
   var t = thema();
+  if (istSyndikat()) {
+    var drei = mische(S.besiegte).slice(0,3).map(function (b) { return b.figur; });
+    return erzeugeFall(S.level,
+      { anzV:8, anzS:2, anzA:17, anzM:5, fixFiguren:drei }, null, VERSTECK, t.ziel);
+  }
   if (istBossfall()) {
-    return erzeugeFall(S.level, { anzV:8, anzS:3, anzA:17, anzM:4, komplize:false },
-      S.schurke, ORTE[5], t.ziel);
+    return erzeugeFall(S.level,
+      { anzV: S.schurke.narbe ? 9 : 8, anzS:3, anzA:17, anzM:4, komplize:false },
+      S.schurke, VERSTECK, t.ziel);
   }
   return erzeugeFall(S.level, stufenOptionen(S.level, S.stufe), null,
-    ORTE[(S.fallImKapitel-1) % 5], t.teile[(S.fallImKapitel-1) % 5]);
+    wuerfle(freieOrte()), t.teile[(S.fallImKapitel-1) % 5]);
 }
 
 function ausgeschlossen() {
@@ -1394,11 +1540,10 @@ function renderLaden() {
   }
 
   if (S.ladenTab === "ziele") {
-    ZIELE.forEach(function (z) {
-      if (z.art==="hq" && S.hq < z.stufe-1) return;
-      var da = (z.art==="hq") ? S.hq >= z.stufe : hatDing(z.id);
-      h += zielZeile(z, da, "kaufziel");
-    });
+    var etage = { id:"etage", preis:etagenPreis(S.hq), sym:"🏢" };
+    h += zielZeile(etage, false, "kaufetage");
+    h += '<div class="hinweiszeile">🏢 '+S.hq+' Etagen</div>';
+    ZIELE.forEach(function (z) { h += zielZeile(z, hatDing(z.id), "kaufziel"); });
   }
 
   if (S.ladenTab === "farben") {
@@ -1441,7 +1586,9 @@ function renderGarderobe() {
 }
 
 function steckbriefHTML(schurke, fetzen, klein) {
-  var h = '<div class="steckbrief"><span style="font-size:20px">'+(S.bande||"")+'</span>'
+  var h = '<div class="steckbrief'+(schurke.narbe?" narbe":"")+'">'
+    + '<span style="font-size:20px">'+(S.bande||"")+'</span>'
+    + (schurke.narbe ? '<span style="font-size:17px">❗</span>' : '')
     + '<span class="fig'+(fetzen>=1?"":" fehlt")+'">'+(fetzen>=1?schurke.figur:"❓")+'</span>';
   schurke.merkmale.forEach(function (m,i) {
     var da = fetzen >= i+2;
@@ -1508,7 +1655,8 @@ function renderOrdner() {
     h += '<div class="kapitel"><div class="kapitel-kopf">'
       +  '<span style="font-size:16px">📖 '+k+'</span><span style="font-size:18px">'+bande+'</span></div>';
     nach[k].forEach(function (a) {
-      h += '<div class="akte"><span class="nr">'+(a.boss?"👑":a.n)+'</span>'
+      h += '<div class="akte"><span class="nr">'+(a.syn?"🎭":a.boss?"👑":a.n)+'</span>'
+        +  (a.flucht?'<span>💨</span>':'')
         +  '<span>'+a.beute+'</span><span style="opacity:.5">›</span>';
       a.spuren.forEach(function (ic) { h += '<span>'+ic+'</span>'; });
       h += '<span style="margin-left:auto">'+a.taeter.join("")+'</span></div>';
@@ -1543,6 +1691,8 @@ function zielZeile(z, besessen, aktion, extra) {
 
 function renderBuero() {
   var h = '<div class="tafel">' + tafelKopf("🛋️")
+    + (S.hq > 0 ? '<div class="hochhaus">'+hochhausSVG(S.hq, 110)
+        + '<span class="hochhaus-zahl">🏢 '+S.hq+'</span></div>' : '')
     + bueroBild()
     + farbleisteHTML()
     + '<div class="slot-zeile" style="grid-template-columns:repeat(6,1fr);margin-top:6px">';
@@ -1659,11 +1809,13 @@ function render() {
     var e = S.erfolg;
     h += '<div class="modal"><div class="modal-inner pop">'
       + '<div class="e-kopf">'+e.taeter.join(" ")+' 🔗 <span class="e-bande">'+S.bande+'</span></div>'
-      + '<div class="e-jubel">'+(e.boss?"👑🎉":"🎉")+'</div>'
+      + '<div class="e-jubel">'+(e.syn?"🎭🎉":e.boss?"👑🎉":"🎉")+'</div>'
       + '<div class="chips">'
       + '<span class="chip gold-chip">💰 '+e.gold+'</span>'
       + '<span class="chip">'+e.beute+' <span class="pfeilchen">→</span> '
       + '<span class="huepft">'+S.besitzer+'</span> 💛</span>';
+    if (e.flucht) h += '<span class="chip flucht-chip"><span class="huepft">💨</span> '
+      + S.schurke.figur + '</span>';
     if (e.futter) h += '<span class="chip"><span class="huepft">'+e.futter+'</span> 😋</span>';
     if (e.fetzen) {
       var neu = S.fetzen===1 ? S.schurke.figur : katalog(S.schurke.merkmale[S.fetzen-2]).icon;
@@ -1756,6 +1908,18 @@ function beschuldige(id, el) {
 
   var neuFetzen = false;
   if (!boss && S.fetzen < 5) { S.fetzen += 1; neuFetzen = true; }
+
+  var syn = istSyndikat(), entwischt = false;
+  if (boss && !syn) {
+    S.besiegte.push({ figur:S.schurke.figur, merkmale:S.schurke.merkmale });
+    if (S.besiegte.length > 12) S.besiegte = S.besiegte.slice(-12);
+    // Jeder vierte entkommt trotz allem und taucht später wieder auf
+    if (!S.schurke.narbe && Math.random() < 0.25) {
+      S.entkommen.push({ figur:S.schurke.figur, merkmale:S.schurke.merkmale });
+      if (S.entkommen.length > 6) S.entkommen = S.entkommen.slice(-6);
+      entwischt = true;
+    }
+  }
   var teilNr = (S.fallImKapitel-1) % 5;
   if (!boss && S.geborgen.indexOf(teilNr)<0) S.geborgen.push(teilNr);
 
@@ -1765,7 +1929,7 @@ function beschuldige(id, el) {
 
   S.archiv.push({
     k:S.kapitel, n:Math.min(S.fallImKapitel,FAELLE_JE_KAPITEL+1), boss:boss, bande:S.bande,
-    beute:S.fall.beute, taeter:taeterFiguren,
+    beute:S.fall.beute, taeter:taeterFiguren, flucht:entwischt, syn:syn,
     spuren:S.fall.spuren.map(function (sp) { return sp.icon; })
   });
   if (S.archiv.length>60) S.archiv = S.archiv.slice(-60);
@@ -1774,7 +1938,7 @@ function beschuldige(id, el) {
   if (S.witz) { S.speck = Math.min((S.speck||0)+1, 12); futter = wuerfle(FUTTER); }
 
   S.erfolg = { taeter:taeterFiguren, gold:lohn, boss:boss, beute:S.fall.beute,
-               fetzen:neuFetzen, futter:futter };
+               fetzen:neuFetzen, futter:futter, flucht:entwischt, syn:syn };
   speichereStand();
   render();
 }
@@ -1808,9 +1972,8 @@ function fuehreKaufAus() {
   if (d.typ==="upgrade") { S.gold -= d.preis; S.upgrades.push(d.id); }
   if (d.typ==="paket")   { S.gold -= d.preis; S.paketKapitel = S.kapitel;
                            S.items.lupe += 3; S.items.hund += 2; S.items.lampe += 1; }
-  if (d.typ==="ziel")    { S.gold -= d.preis;
-                           var zz = zielVon(d.id);
-                           if (zz.art==="hq") S.hq = zz.stufe; else S.dinge.push(zz.id); }
+  if (d.typ==="ziel")    { S.gold -= d.preis; S.dinge.push(d.id); }
+  if (d.typ==="etage")   { S.gold -= d.preis; S.hq += 1; }
   if (d.typ==="tier")    { S.gold -= d.preis; S.tiere.push(d.id);
                            if (!S.tierAktiv) S.tierAktiv = d.id; }
   if (d.typ==="gehege")  { S.gold -= d.preis; S.gehege.push(d.id); }
@@ -1946,7 +2109,12 @@ app.addEventListener("click", function (ev) {
   }
   if (act==="kaufziel") {
     var zi = zielVon(z.getAttribute("data-id"));
-    if (zi) frage("ziel", zi.id, zi.preis, '<span style="font-size:70px">'+zi.sym+'</span>');
+    if (zi && !hatDing(zi.id))
+      frage("ziel", zi.id, zi.preis, '<span style="font-size:70px">'+zi.sym+'</span>');
+  }
+  if (act==="kaufetage") {
+    frage("etage", "etage", etagenPreis(S.hq),
+      hochhausSVG(S.hq+1, 150) + '<div style="font-size:18px;margin-top:6px">🏢 '+(S.hq+1)+'</div>');
   }
   if (act==="ladentab") { S.ladenTab = z.getAttribute("data-t"); S.farbwahl=null; render(); return; }
   if (act==="kaufgehege") {
