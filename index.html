@@ -1212,7 +1212,7 @@ var PREISE = { lupe:4, hund:6, lampe:8 };
 /* Sichtbar im Spielstände-Menü – daran erkennst du, ob eine neue
    Fassung angekommen ist. Bei jeder Auslieferung hochzählen,
    zusammen mit der Cache-Nummer in sw.js. */
-var VERSION = "v15";
+var VERSION = "v16";
 
 var BASIS_KEY = "detektivbuero.v6";
 var ANZ_STAENDE = 3;
@@ -2162,12 +2162,19 @@ app.addEventListener("click", function (ev) {
   else render();
 })();
 
-/* Service Worker: macht die App nach dem ersten Aufruf offline lauffähig.
-   Scheitert lautlos, wenn die Seite z.B. aus einer Vorschau kommt. */
+/* Kein Service Worker mehr. Stattdessen räumen wir alte Installationen
+   ab: Auf iOS hat ein hängengebliebener Handler die App zweimal
+   komplett blockiert. Ohne ihn braucht die App zum Starten Netz,
+   kann dafür aber nicht mehr aussperren. */
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", function () {
-    navigator.serviceWorker.register("sw.js").catch(function () { /* egal */ });
-  });
+  navigator.serviceWorker.getRegistrations().then(function (regs) {
+    regs.forEach(function (r) { r.unregister(); });
+  }).catch(function () { });
+  if (window.caches && caches.keys) {
+    caches.keys().then(function (namen) {
+      namen.forEach(function (n) { caches.delete(n); });
+    }).catch(function () { });
+  }
 }
 </script>
 </body>

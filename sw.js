@@ -1,96 +1,35 @@
-/* Service Worker für das Detektivbüro.
+/* Abschaltender Service Worker.
 
-   Zwei Lehren aus der alten Fassung:
+   Die frühere Fassung hat auf iOS Geräte lahmgelegt: Ein einziger
+   fehlgeschlagener Abruf ließ die ganze Seite mit
+   "FetchEvent.respondWith received an error" abbrechen, und der
+   Handler ließ sich danach kaum noch austauschen.
 
-   1. Der Fetch-Handler darf NIE ein abgelehntes Versprechen an
-      respondWith weitergeben. Sonst zeigt Safari statt der Seite nur
-      "FetchEvent.respondWith received an error". Deshalb endet hier
-      jeder Pfad in einer echten Antwort – notfalls in einer selbst
-      gebauten.
+   Diese Datei tut deshalb nur noch eines: sich selbst abmelden und
+   alle Zwischenspeicher löschen. Sie hat bewusst KEINEN fetch-Handler
+   – damit kann sie nichts mehr blockieren, egal was schiefgeht.
+   Geräte mit der alten Fassung heilen sich, sobald sie diese hier
+   einmal geladen haben.
 
-   2. Für die Seite selbst gilt Netz zuerst, Zwischenspeicher nur als
-      Rückfall. Damit kommt eine neue Fassung sofort an, ohne dass die
-      Cache-Nummer hochgezählt werden muss. Für Icons und Manifest
-      bleibt es umgekehrt, die ändern sich praktisch nie.
+   Preis: Die App braucht zum Starten Netz. Das ist der bessere Tausch
+   als eine App, die gar nicht mehr aufgeht.
 */
 
-var CACHE = "detektivbuero-v15";
-var DATEIEN = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
-
-self.addEventListener("install", function (e) {
-  e.waitUntil(
-    caches.open(CACHE)
-      .then(function (c) { return c.addAll(DATEIEN); })
-      .catch(function () { /* einzelne Datei fehlt: trotzdem installieren */ })
-  );
+self.addEventListener("install", function () {
   self.skipWaiting();
 });
 
 self.addEventListener("activate", function (e) {
   e.waitUntil(
-    caches.keys().then(function (namen) {
-      return Promise.all(namen.map(function (n) {
-        return n === CACHE ? null : caches.delete(n);
-      }));
-    }).catch(function () { })
-  );
-  self.clients.claim();
-});
-
-function ausCache(req) {
-  // ignoreSearch, damit auch ?v=14 den gespeicherten Eintrag findet
-  return caches.match(req, { ignoreSearch: true });
-}
-
-function lege(req, antwort) {
-  if (!antwort || !antwort.ok || antwort.type === "opaque") return antwort;
-  var kopie = antwort.clone();
-  caches.open(CACHE).then(function (c) {
-    c.put(req, kopie);
-  }).catch(function () { });
-  return antwort;
-}
-
-self.addEventListener("fetch", function (e) {
-  var req = e.request;
-
-  // Nur eigene GET-Anfragen anfassen, alles andere durchlassen
-  if (req.method !== "GET") return;
-  if (req.url.indexOf(self.location.origin) !== 0) return;
-
-  var istSeite = req.mode === "navigate" ||
-                 /\/$|\.html($|\?)/.test(req.url);
-
-  if (istSeite) {
-    // Netz zuerst, Zwischenspeicher als Rettung
-    e.respondWith(
-      fetch(req)
-        .then(function (a) { return lege(req, a); })
-        .catch(function () {
-          return ausCache(req).then(function (t) {
-            return t || ausCache("./index.html");
-          }).then(function (t) {
-            return t || new Response(
-              "<!doctype html><meta charset=utf-8><body style=\"background:#0E1729\">",
-              { headers: { "Content-Type": "text/html; charset=utf-8" } }
-            );
-          });
-        })
-    );
-    return;
-  }
-
-  // Alles andere: Zwischenspeicher zuerst, Netz als Ergänzung
-  e.respondWith(
-    ausCache(req).then(function (treffer) {
-      if (treffer) return treffer;
-      return fetch(req)
-        .then(function (a) { return lege(req, a); })
-        .catch(function () {
-          return new Response("", { status: 504, statusText: "offline" });
-        });
-    }).catch(function () {
-      return new Response("", { status: 504, statusText: "offline" });
-    })
+    caches.keys()
+      .then(function (namen) {
+        return Promise.all(namen.map(function (n) { return caches.delete(n); }));
+      })
+      .then(function () { return self.registration.unregister(); })
+      .then(function () { return self.clients.matchAll(); })
+      .then(function (clients) {
+        clients.forEach(function (c) { if (c.navigate) c.navigate(c.url); });
+      })
+      .catch(function () { })
   );
 });
