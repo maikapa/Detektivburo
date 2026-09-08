@@ -34,12 +34,12 @@
      Zeilen behalten ihre Größe, das Suchbild nimmt exakt den Rest.
      Dadurch muss nie gescrollt werden, egal wie hoch das Display ist. */
   #app { max-width:380px; margin:0 auto; height:100%;
-         display:flex; flex-direction:column; gap:7px; }
+         display:flex; flex-direction:column; gap:5px; }
   #app > .tafel, #app > .wahl { flex:1; min-height:0; overflow-y:auto; }
   /* Das Suchbild darf schrumpfen, aber nicht unter eine Größe, bei der
      die Tippziele zu klein werden. Auf sehr kurzen Displays darf die
      Seite dann doch scrollen – lieber das als unerreichbare Objekte. */
-  .szene-huelle { flex:1; min-height:330px; display:flex; margin-bottom:0 !important; }
+  .szene-huelle { flex:1; min-height:360px; display:flex; margin-bottom:0 !important; }
   svg.szene { width:100%; height:100%; flex:1; min-height:0; }
 
   /* Rückfall für ältere Browser (iOS 12): kein aspect-ratio, kein
@@ -63,12 +63,14 @@
 
   .fortschritt { display:flex; align-items:center; gap:8px; flex:0 0 auto; }
   .balken { flex:1; height:10px; border-radius:6px; background:rgba(255,255,255,.1); overflow:hidden; }
+  .balken.duenn { height:5px; margin-top:3px; }
+  .rang-name { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .balken-fuellung { height:100%; border-radius:6px; background:var(--lampe); transition:width .5s ease; }
   .fortschritt .zahl { font-size:12px; color:var(--offen); min-width:52px; }
 
   .reiter { display:flex; gap:5px; flex:0 0 auto; }
-  .reiter button { flex:1; background:rgba(255,255,255,.08); border-radius:14px;
-                   font-size:19px; padding:9px 0; position:relative; }
+  .reiter button { flex:1; background:rgba(255,255,255,.08); border-radius:12px;
+                   font-size:18px; padding:5px 0; position:relative; }
   .reiter button.aktiv { background:rgba(255,194,75,.22); outline:2px solid var(--lampe); }
   .punkt { position:absolute; top:5px; right:8px; width:8px; height:8px;
            border-radius:50%; background:var(--gruen); }
@@ -130,10 +132,10 @@
 
   .kapitel { border-left:3px solid var(--rot); padding-left:12px; margin:4px 0 14px; }
   .kapitel-kopf { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
-  .steckbrief { background:#E8DCC0; color:#2B2118; border-radius:12px; padding:8px 10px;
-                display:flex; align-items:center; gap:8px; }
-  .steckbrief .fig { font-size:30px; }
-  .steckbrief .m { font-size:18px; }
+  .steckbrief { background:#E8DCC0; color:#2B2118; border-radius:12px; padding:4px 10px;
+                display:flex; align-items:center; gap:7px; flex:0 0 auto; }
+  .steckbrief .fig { font-size:24px; }
+  .steckbrief .m { font-size:17px; }
   .steckbrief .fehlt { opacity:.35; }
   .akte { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,.07);
           border-radius:12px; padding:8px 10px; margin-bottom:5px; font-size:20px; }
@@ -141,11 +143,11 @@
   .leer-hinweis { text-align:center; font-size:34px; opacity:.4; padding:20px 0; }
 
   .auftrag { display:flex; align-items:center; gap:10px; background:rgba(255,194,75,.12);
-             border:1px solid rgba(255,194,75,.3); border-radius:18px; padding:8px 10px; flex:0 0 auto; }
-  .auftrag .beute { font-size:36px; line-height:1; }
+             border:1px solid rgba(255,194,75,.3); border-radius:16px; padding:5px 10px; flex:0 0 auto; }
+  .auftrag .beute { font-size:30px; line-height:1; }
   .auftrag .pfeil { font-size:20px; color:var(--lampe-weich); opacity:.7; }
   .suchliste { display:flex; gap:6px; }
-  .such-feld { font-size:24px; width:44px; height:44px; display:grid; place-items:center;
+  .such-feld { font-size:22px; width:38px; height:38px; display:grid; place-items:center;
                border-radius:14px; background:rgba(0,0,0,.25); filter:grayscale(1) brightness(.55);
                border:2px dashed rgba(255,255,255,.25); }
   .such-feld.hat { background:rgba(61,214,140,.22); filter:none; border:2px solid var(--gruen); }
@@ -155,21 +157,21 @@
   svg.szene { width:100%; display:block; border-radius:22px; }
 
   .verdaechtige { display:grid; gap:6px; flex:0 0 auto; }
-  .verd { background:rgba(255,255,255,.1); border:2px solid var(--offen); border-radius:18px;
-          padding:8px 2px 6px; transition:opacity .35s, filter .35s; position:relative; }
+  .verd { background:rgba(255,255,255,.1); border:2px solid var(--offen); border-radius:14px;
+          padding:4px 2px 3px; transition:opacity .35s, filter .35s; position:relative; }
   .verd.raus { background:rgba(255,255,255,.04); border-color:transparent; opacity:.28; filter:grayscale(1); }
   .verd.gesperrt { opacity:.55; }
   .verd.ziel { border-color:var(--lampe); background:rgba(255,194,75,.18);
                animation:pochen 1.1s ease-in-out infinite; }
   .verd.gefasst { border-color:var(--gruen); background:rgba(61,214,140,.24); animation:none; }
-  .verd .figur { font-size:34px; line-height:1; }
-  .verd .merkmale { display:flex; justify-content:center; flex-wrap:wrap; gap:2px;
-                    margin-top:4px; font-size:20px; max-width:52px; margin-left:auto; margin-right:auto; }
+  .verd .figur { font-size:27px; line-height:1; }
+  .verd .merkmale { display:flex; justify-content:center; flex-wrap:wrap; gap:1px;
+                    margin-top:2px; font-size:15px; line-height:1.05; }
   .verd .merkmale span.treffer { animation:aufleuchten .8s ease-out; border-radius:6px; }
   .verd .handschelle { position:absolute; top:2px; right:4px; font-size:14px; }
 
   .ausruestung { display:flex; gap:8px; flex:0 0 auto; }
-  .item { flex:1; background:rgba(255,194,75,.16); border-radius:16px; padding:10px 0; font-size:24px; }
+  .item { flex:1; background:rgba(255,194,75,.16); border-radius:14px; padding:7px 0; font-size:22px; }
   .item.leer { background:rgba(255,255,255,.04); opacity:.3; }
   .item .n { font-size:14px; margin-left:6px; }
 
@@ -224,15 +226,15 @@
   .tipphand { position:absolute; left:55%; top:40%; font-size:36px;
               animation:tippen 1.2s ease-in-out infinite; pointer-events:none; }
   @media (max-height: 700px) {
-    .fortschritt { display:none; }
-    .auftrag { padding:6px 8px; }
-    .auftrag .beute { font-size:30px; }
-    .such-feld { width:38px; height:38px; font-size:21px; }
-    .verd { padding:5px 2px 4px; }
-    .verd .figur { font-size:28px; }
-    .verd .merkmale { font-size:17px; max-width:46px; }
-    .item { padding:7px 0; font-size:21px; }
-    .reiter button { padding:7px 0; font-size:17px; }
+    .balken.duenn, .rang-sub { display:none; }
+    .auftrag { padding:4px 8px; }
+    .auftrag .beute { font-size:26px; }
+    .such-feld { width:34px; height:34px; font-size:19px; }
+    .verd .figur { font-size:23px; }
+    .verd .merkmale { font-size:15px; max-width:36px; }
+    .item { padding:5px 0; font-size:20px; }
+    .reiter button { padding:4px 0; font-size:16px; }
+    .steckbrief .fig { font-size:20px; }
   }
   @media (prefers-reduced-motion:reduce) {
     .wackel,.blink,.pop,.huepft,.verd.ziel,.tipphand { animation:none; }
@@ -1252,19 +1254,19 @@ function kopfHTML() {
   var anteil = naechster ? (S.level-rang.ab)/(naechster.ab-rang.ab) : 1;
 
   var h = '<div class="kopf"><div class="kopf-links">'
-    + '<span style="font-size:26px">'+rang.abzeichen+'</span>'
-    + '<div><div class="rang-name">'+rangText(rang)+'</div>'
-    + '<div class="rang-sub">📖 '+S.kapitel+' · '+Math.min(S.fallImKapitel,FAELLE_JE_KAPITEL+1)
-    + '/'+(FAELLE_JE_KAPITEL+1)+(istBossfall()?' 👑':'')+'</div></div></div>'
-    + '<div style="display:flex;gap:6px;align-items:center">'
+    + '<span style="font-size:24px">'+rang.abzeichen+'</span>'
+    + '<div style="flex:1;min-width:0">'
+    +   '<div class="rang-name">'+rangText(rang)+'</div>'
+    +   '<div class="rang-sub">📖 '+S.kapitel+' · '+Math.min(S.fallImKapitel,FAELLE_JE_KAPITEL+1)
+    +   '/'+(FAELLE_JE_KAPITEL+1)+(istBossfall()?' 👑':'')+' · 🔎 '+S.level+'</div>'
+    // Der Balken sitzt jetzt in der Kopfzeile statt in einer eigenen Reihe
+    +   '<div class="balken duenn"><div class="balken-fuellung" style="width:'
+    +   Math.max(4, Math.round(anteil*100))+'%"></div></div>'
+    + '</div></div>'
+    + '<div style="display:flex;gap:5px;align-items:center;flex:0 0 auto">'
     + '<span class="gold">💰 '+S.gold+'</span>'
     + '<button class="kopf-knopf'+(S.witz?" witz-an":"")+'" data-act="witz">🍔</button>'
     + '<button class="kopf-knopf" data-act="staende">👥</button></div></div>';
-
-  h += '<div class="fortschritt"><span class="zahl">'+S.level+(naechster?" / "+naechster.ab:"")
-    + '</span><div class="balken"><div class="balken-fuellung" style="width:'
-    + Math.max(4, Math.round(anteil*100))+'%"></div></div>'
-    + '<span style="font-size:20px">'+(naechster?naechster.abzeichen:"🏅")+'</span></div>';
 
   var kaufbar = ITEMS.some(function (it) { return S.besitz.indexOf(it.id)<0 && S.gold>=it.preis; });
   h += '<div class="reiter">'
@@ -1573,7 +1575,7 @@ function render() {
   if (S.panel==="buero")     { app.innerHTML = h + renderBuero()     + (S.dialog?renderDialog():""); return; }
 
   var f = S.fall, raus = ausgeschlossen(), frei = alleSpurenDa();
-  if (istBossfall()) h += steckbriefHTML(S.schurke, 5, true) + '<div style="height:10px"></div>';
+  if (istBossfall()) h += steckbriefHTML(S.schurke, 5, true);
 
   h += '<div class="auftrag" id="auftrag"><span class="beute">'+f.beute+'</span>'
     + '<span class="pfeil">›</span><span class="suchliste">';
