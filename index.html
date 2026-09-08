@@ -15,17 +15,44 @@
     --gruen:#3DD68C; --rot:#FF6B5A; --offen:#8FA3C8; --papier:#F7EFE0;
   }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  .such-feld, .chip, .akte, .verd .figur, .verd .merkmale, .item, .kauf,
+  .steckbrief, .ziel .z-sym, .reiter button, .kopf-knopf, svg text {
+    font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",
+                ui-rounded,system-ui,sans-serif;
+  }
   html,body { margin:0; padding:0; }
+  html,body { height:100%; }
   body {
-    min-height:100vh;
+    height:100vh; overflow-y:auto; -webkit-overflow-scrolling:touch;
     background:radial-gradient(circle at 50% 0%, var(--nacht) 0%, var(--tiefer) 70%);
     font-family:ui-rounded,"SF Pro Rounded","Segoe UI Variable","Segoe UI",system-ui,sans-serif;
-    color:var(--papier); padding:12px 12px 28px; -webkit-user-select:none; user-select:none;
+    color:var(--papier); padding:8px 10px; -webkit-user-select:none; user-select:none;
   }
-  #app { max-width:380px; margin:0 auto; }
+  @supports (height: 100dvh) { body { height:100dvh; } }
+
+  /* Der Fallbildschirm ist eine Spalte über die volle Höhe: alle
+     Zeilen behalten ihre Größe, das Suchbild nimmt exakt den Rest.
+     Dadurch muss nie gescrollt werden, egal wie hoch das Display ist. */
+  #app { max-width:380px; margin:0 auto; height:100%;
+         display:flex; flex-direction:column; gap:7px; }
+  #app > .tafel, #app > .wahl { flex:1; min-height:0; overflow-y:auto; }
+  /* Das Suchbild darf schrumpfen, aber nicht unter eine Größe, bei der
+     die Tippziele zu klein werden. Auf sehr kurzen Displays darf die
+     Seite dann doch scrollen – lieber das als unerreichbare Objekte. */
+  .szene-huelle { flex:1; min-height:330px; display:flex; margin-bottom:0 !important; }
+  svg.szene { width:100%; height:100%; flex:1; min-height:0; }
+
+  /* Rückfall für ältere Browser (iOS 12): kein aspect-ratio, kein
+     gap im Grid. Die Regeln unten greifen nur dort, wo aspect-ratio
+     fehlt – moderne Geräte sehen davon nichts. */
+  @supports not (aspect-ratio: 1) {
+    .teil { height:74px; }
+    .farbe { height:34px; }
+    .slot-zeile > * { margin-right:6px; }
+  }
   button { font-family:inherit; color:inherit; border:none; cursor:pointer; background:none; }
 
-  .kopf { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+  .kopf { display:flex; align-items:center; justify-content:space-between; flex:0 0 auto; }
   .kopf-links { display:flex; align-items:center; gap:8px; }
   .rang-name { font-size:15px; font-weight:700; line-height:1.15; }
   .rang-sub { font-size:12px; color:var(--offen); }
@@ -34,12 +61,12 @@
   .kopf-knopf { background:rgba(255,255,255,.08); border-radius:14px; font-size:16px; padding:8px 10px; }
   .kopf-knopf.witz-an { background:rgba(255,194,75,.3); outline:2px solid var(--lampe); }
 
-  .fortschritt { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+  .fortschritt { display:flex; align-items:center; gap:8px; flex:0 0 auto; }
   .balken { flex:1; height:10px; border-radius:6px; background:rgba(255,255,255,.1); overflow:hidden; }
   .balken-fuellung { height:100%; border-radius:6px; background:var(--lampe); transition:width .5s ease; }
   .fortschritt .zahl { font-size:12px; color:var(--offen); min-width:52px; }
 
-  .reiter { display:flex; gap:5px; margin-bottom:12px; }
+  .reiter { display:flex; gap:5px; flex:0 0 auto; }
   .reiter button { flex:1; background:rgba(255,255,255,.08); border-radius:14px;
                    font-size:19px; padding:9px 0; position:relative; }
   .reiter button.aktiv { background:rgba(255,194,75,.22); outline:2px solid var(--lampe); }
@@ -74,6 +101,14 @@
   .kauf.zuteuer { background:rgba(255,255,255,.04); opacity:.35; }
   .kauf .preis { display:block; font-size:14px; font-weight:700; color:var(--lampe); margin-top:4px; }
   .laden-zeile { display:flex; gap:8px; margin-bottom:10px; }
+  .untertabs { display:flex; gap:4px; margin-bottom:10px; }
+  .untertabs button { flex:1; background:rgba(255,255,255,.07); border-radius:12px;
+                      font-size:17px; padding:7px 0; }
+  .untertabs button.aktiv { background:rgba(255,194,75,.24); outline:2px solid var(--lampe); }
+  .hinweiszeile { text-align:center; font-size:13px; color:var(--offen); margin-top:8px; }
+  .teil.gewaehlt { outline:2px solid var(--lampe); background:rgba(255,194,75,.28); }
+  .farbe.zu { opacity:.35; position:relative; }
+  .topfpreis { position:absolute; inset:0; display:grid; place-items:center; font-size:13px; }
   .upgrade { display:flex; align-items:center; gap:10px; background:rgba(255,255,255,.06);
              border-radius:16px; padding:10px 12px; margin-bottom:6px; width:100%; }
   .upgrade.gekauft { opacity:.4; }
@@ -106,7 +141,7 @@
   .leer-hinweis { text-align:center; font-size:34px; opacity:.4; padding:20px 0; }
 
   .auftrag { display:flex; align-items:center; gap:10px; background:rgba(255,194,75,.12);
-             border:1px solid rgba(255,194,75,.3); border-radius:18px; padding:10px 12px; margin-bottom:12px; }
+             border:1px solid rgba(255,194,75,.3); border-radius:18px; padding:8px 10px; flex:0 0 auto; }
   .auftrag .beute { font-size:36px; line-height:1; }
   .auftrag .pfeil { font-size:20px; color:var(--lampe-weich); opacity:.7; }
   .suchliste { display:flex; gap:6px; }
@@ -119,7 +154,7 @@
   .szene-huelle { position:relative; margin-bottom:12px; }
   svg.szene { width:100%; display:block; border-radius:22px; }
 
-  .verdaechtige { display:grid; gap:7px; margin-bottom:12px; }
+  .verdaechtige { display:grid; gap:6px; flex:0 0 auto; }
   .verd { background:rgba(255,255,255,.1); border:2px solid var(--offen); border-radius:18px;
           padding:8px 2px 6px; transition:opacity .35s, filter .35s; position:relative; }
   .verd.raus { background:rgba(255,255,255,.04); border-color:transparent; opacity:.28; filter:grayscale(1); }
@@ -127,12 +162,13 @@
   .verd.ziel { border-color:var(--lampe); background:rgba(255,194,75,.18);
                animation:pochen 1.1s ease-in-out infinite; }
   .verd.gefasst { border-color:var(--gruen); background:rgba(61,214,140,.24); animation:none; }
-  .verd .figur { font-size:28px; line-height:1; }
-  .verd .merkmale { display:flex; justify-content:center; flex-wrap:wrap; gap:1px; margin-top:5px; font-size:13px; }
+  .verd .figur { font-size:34px; line-height:1; }
+  .verd .merkmale { display:flex; justify-content:center; flex-wrap:wrap; gap:2px;
+                    margin-top:4px; font-size:20px; max-width:52px; margin-left:auto; margin-right:auto; }
   .verd .merkmale span.treffer { animation:aufleuchten .8s ease-out; border-radius:6px; }
   .verd .handschelle { position:absolute; top:2px; right:4px; font-size:14px; }
 
-  .ausruestung { display:flex; gap:8px; }
+  .ausruestung { display:flex; gap:8px; flex:0 0 auto; }
   .item { flex:1; background:rgba(255,194,75,.16); border-radius:16px; padding:10px 0; font-size:24px; }
   .item.leer { background:rgba(255,255,255,.04); opacity:.3; }
   .item .n { font-size:14px; margin-left:6px; }
@@ -187,6 +223,17 @@
   .huepft { animation:huepf .9s ease-in-out infinite; }
   .tipphand { position:absolute; left:55%; top:40%; font-size:36px;
               animation:tippen 1.2s ease-in-out infinite; pointer-events:none; }
+  @media (max-height: 700px) {
+    .fortschritt { display:none; }
+    .auftrag { padding:6px 8px; }
+    .auftrag .beute { font-size:30px; }
+    .such-feld { width:38px; height:38px; font-size:21px; }
+    .verd { padding:5px 2px 4px; }
+    .verd .figur { font-size:28px; }
+    .verd .merkmale { font-size:17px; max-width:46px; }
+    .item { padding:7px 0; font-size:21px; }
+    .reiter button { padding:7px 0; font-size:17px; }
+  }
   @media (prefers-reduced-motion:reduce) {
     .wackel,.blink,.pop,.huepft,.verd.ziel,.tipphand { animation:none; }
   }
@@ -221,9 +268,9 @@ var KATALOG = [
   { id:"katze",   icon:"🐈" }, { id:"handschuh", icon:"🧤" }
 ];
 
-var FIGUREN  = ["🧑‍🦰","👩","👦","🧒","🧓","👵","🧑‍🎤","👨‍🦱","🧑‍🌾","👧"];
-var ABLENKER = ["🍎","🌻","⚽","🪁","🐞","🍄","🪣","🧦","📚","🥤",
-                "🪀","🎈","🐌","🍌","🪵","🧃","🐝","🥕","🍇","🧩","🚗","🪐"];
+var FIGUREN  = ["👨","👩","👦","👧","🧒","🧓","👵","👴","👱","🧔"];
+var ABLENKER = ["🍎","🌻","⚽","🎏","🐞","🍄","🧺","🧦","📚","🥤",
+                "🎲","🎈","🐌","🍌","🍂","🍹","🐝","🥕","🍇","🧩","🚗","🌍"];
 
 /* Bandenzeichen: wird beim Lösen sichtbar und verknüpft die Fälle. */
 var BANDEN = ["🦊","🦉","🐍","🕷️","🦇","🐙","🐺","🦅"];
@@ -234,14 +281,14 @@ var FUTTER = ["🍔","🍕","🍩","🌭","🍟","🧁","🍰","🥨","🍫","�
 /* Jedes Kapitel bestohlen: fünf Teile, die zusammen ein Ganzes ergeben.
    Bewusst ohne Überschneidung mit Spuren- oder Ablenker-Symbolen. */
 var THEMEN = [
-  { ziel:"🎉", teile:["🎂","🎁","🍭","🎺","🪅"] },
-  { ziel:"🏖️", teile:["🩴","🕶️","🏐","🍦","🐚"] },
+  { ziel:"🎉", teile:["🎂","🎁","🍭","🎺","🎊"] },
+  { ziel:"🏖️", teile:["👒","🕶️","🏐","🍦","🐚"] },
   { ziel:"🚀", teile:["🛰️","🔭","🛸","🧪","⭐"] },
   { ziel:"🎪", teile:["🎟️","🦁","🥁","🎩","🍿"] },
   { ziel:"🗺️", teile:["🧭","💎","⚓","🏺","🦜"] },
-  { ziel:"🎼", teile:["🎹","🎤","🎧","🪘","🎻"] },
+  { ziel:"🎼", teile:["🎹","🎤","🎧","🎷","🎻"] },
   { ziel:"⛄", teile:["🧣","🛷","☕","❄️","🍫"] },
-  { ziel:"🍽️", teile:["🍳","🥄","🧁","🫖","🥨"] }
+  { ziel:"🍽️", teile:["🍳","🥄","🧁","🥛","🥨"] }
 ];
 
 var ORTE = [
@@ -268,7 +315,7 @@ var BASIS = [
 ];
 
 var ITEMS = [
-  { id:"deerstalker", slot:"hut", preis:18, wirkung:"gold",   hinweis:"🪙" },
+  { id:"deerstalker", slot:"hut", preis:18, wirkung:"gold",   hinweis:"💰" },
   { id:"kappe",       slot:"hut", preis:10 },
   { id:"wollmuetze",  slot:"hut", preis:10 },
   { id:"zylinder",    slot:"hut", preis:12 },
@@ -301,6 +348,13 @@ var ITEMS = [
   { id:"handlampe",  slot:"hand", preis:10 },
   { id:"becher",     slot:"hand", preis:10 },
 
+  { id:"jeans",    slot:"hose", preis:10, farbe:"#4E6E9E", schnitt:"lang" },
+  { id:"cord",     slot:"hose", preis:10, farbe:"#A8783C", schnitt:"lang" },
+  { id:"shorts",   slot:"hose", preis:10, farbe:"#3FA9A0", schnitt:"kurz" },
+  { id:"latzhose", slot:"hose", preis:14, farbe:"#6E7FB8", schnitt:"latz" },
+  { id:"rock",     slot:"hose", preis:12, farbe:"#C4534B", schnitt:"rock" },
+  { id:"jogger",   slot:"hose", preis:12, farbe:"#4A4A52", schnitt:"streif" },
+
   { id:"gold_hut",    slot:"hut",    preis:150, farbe:"#EFC14E" },
   { id:"gold_brille", slot:"brille", preis:150 },
   { id:"gold_lupe",   slot:"hand",   preis:150 }
@@ -329,19 +383,34 @@ var ZIELE = [
 function tierVon(id){ for(var i=0;i<TIERE.length;i++) if(TIERE[i].id===id) return TIERE[i]; return null; }
 function zielVon(id){ for(var i=0;i<ZIELE.length;i++) if(ZIELE[i].id===id) return ZIELE[i]; return null; }
 
-var SLOTS = ["hut","brille","kleidung","hand"];
-var SLOT_SYMBOL = { hut:"🎩", brille:"👓", kleidung:"🧥", hand:"🤚" };
+var SLOTS = ["hut","brille","kleidung","hose","hand"];
+var SLOT_SYMBOL = { hut:"🎩", brille:"👓", kleidung:"🧥", hose:"👖", hand:"✋" };
 
 var FARBTOPF = ["#C4534B","#E08A3C","#EFC14E","#7ABF5A","#3FA9A0","#4E7FBF","#7A5BA6",
                 "#D96BA0","#8C6A45","#F7EFE0","#8A8F9C","#2E3038","#5BE07A","#FF9EC4"];
-var FARBE_PREIS = 6;
+var TOPF_PREIS = 20;   // einmal kaufen, danach unbegrenzt benutzen
 
 var MOEBEL = [
-  { id:"teppich", preis:14, sym:"🟥" }, { id:"schreibtisch", preis:20, sym:"🪑" },
+  { id:"teppich", preis:14, sym:"🔴" }, { id:"schreibtisch", preis:20, sym:"📝" },
   { id:"stuhl",   preis:14, sym:"💺" }, { id:"lampe",        preis:16, sym:"💡" },
-  { id:"pflanze", preis:12, sym:"🪴" }, { id:"pinnwand",     preis:18, sym:"📌" },
+  { id:"pflanze", preis:12, sym:"🌿" }, { id:"pinnwand",     preis:18, sym:"📌" },
   { id:"schrank", preis:20, sym:"🗄️" }, { id:"buerokatze",   preis:25, sym:"🐈" }
 ];
+
+/* Gehege: je weiter ausgebaut, desto größer werden die Tiere. */
+var GEHEGE = [
+  { id:"zaun",   preis:16, sym:"🚧" }, { id:"streu",  preis:12, sym:"🌾" },
+  { id:"napf",   preis:14, sym:"🥣" }, { id:"wasser", preis:14, sym:"💧" },
+  { id:"ast",    preis:20, sym:"🌳" }, { id:"hoehle", preis:24, sym:"🕳️" },
+  { id:"ball",   preis:18, sym:"⚽" }
+];
+function gehegeVon(id){ for(var i=0;i<GEHEGE.length;i++) if(GEHEGE[i].id===id) return GEHEGE[i]; return null; }
+
+/* Tierstufe hängt allein am Ausbau des Geheges: 1 klein, 2 jung, 3 groß. */
+function tierStufe() {
+  var n = S.gehege.length;
+  return n >= 6 ? 3 : n >= 3 ? 2 : 1;
+}
 
 var UPGRADES = [
   { id:"lupe_lang",   preis:30, icon:"🔍", text:"⏱️ ×2" },
@@ -355,8 +424,11 @@ function moebelVon(id){ for (var i=0;i<MOEBEL.length;i++) if (MOEBEL[i].id===id)
 function upgradeVon(id){for (var i=0;i<UPGRADES.length;i++) if (UPGRADES[i].id===id) return UPGRADES[i]; return null; }
 function katalog(id) { for (var i=0;i<KATALOG.length;i++) if (KATALOG[i].id===id) return KATALOG[i]; return null; }
 
-var BREITE=360, HOEHE=560, SPALTEN=5, ZEILEN=7, ZELLE=72, JITTER=12;
-var BESETZT=[25,26,30,31];
+/* Szene 360 × 432 statt 360 × 560: flacher, damit der Fallbildschirm
+   ohne Scrollen auf ein Handydisplay passt. 5 × 6 = 30 Rasterplätze,
+   davon vier für die Figur unten links – bleiben 26 für bis zu 20 Objekte. */
+var BREITE=360, HOEHE=432, SPALTEN=5, ZEILEN=6, ZELLE=72, JITTER=12;
+var BESETZT=[20,21,25,26];
 var VERDECKT_AB=6;
 var FAELLE_JE_KAPITEL=5;
 
@@ -391,14 +463,36 @@ function figurSVG(profil, angezogen, speck) {
   var k = "", p = "";
 
   /* --- Körper --- */
-  k += '<rect x="30" y="112" width="13" height="26" rx="5" fill="#334"></rect>'
-    +  '<rect x="47" y="112" width="13" height="26" rx="5" fill="#334"></rect>'
-    +  '<rect x="26" y="134" width="19" height="9" rx="4" fill="#22252E"></rect>'
+  // Beine: nackt dunkelgrau, mit Hose je nach Schnitt
+  var ho = a.hose ? itemVon(a.hose) : null;
+  var hf = ho ? fb(ho.id, ho.farbe) : "#334";
+  var schnitt = ho ? ho.schnitt : "lang";
+  if (schnitt === "rock") {
+    k += '<rect x="30" y="112" width="13" height="26" rx="5" fill="'+profil.haut+'"></rect>'
+      +  '<rect x="47" y="112" width="13" height="26" rx="5" fill="'+profil.haut+'"></rect>'
+      +  '<path d="M28 108 h34 l7 22 h-48 z" fill="'+hf+'"></path>';
+  } else if (schnitt === "kurz") {
+    k += '<rect x="30" y="112" width="13" height="26" rx="5" fill="'+profil.haut+'"></rect>'
+      +  '<rect x="47" y="112" width="13" height="26" rx="5" fill="'+profil.haut+'"></rect>'
+      +  '<rect x="29" y="108" width="15" height="16" rx="4" fill="'+hf+'"></rect>'
+      +  '<rect x="46" y="108" width="15" height="16" rx="4" fill="'+hf+'"></rect>';
+  } else {
+    k += '<rect x="30" y="112" width="13" height="26" rx="5" fill="'+hf+'"></rect>'
+      +  '<rect x="47" y="112" width="13" height="26" rx="5" fill="'+hf+'"></rect>';
+    if (schnitt === "streif")
+      k += '<rect x="31" y="112" width="3" height="26" fill="#F7EFE0"></rect>'
+        +  '<rect x="56" y="112" width="3" height="26" fill="#F7EFE0"></rect>';
+  }
+  k += '<rect x="26" y="134" width="19" height="9" rx="4" fill="#22252E"></rect>'
     +  '<rect x="45" y="134" width="19" height="9" rx="4" fill="#22252E"></rect>';
   k += '<rect x="11" y="70" width="13" height="42" rx="6" fill="'+mantel+'"></rect>'
     +  '<rect x="66" y="70" width="13" height="42" rx="6" fill="'+mantel+'"></rect>';
   k += '<path d="M22 76 q0 -12 12 -12 h22 q12 0 12 12 v42 h-46 z" fill="'+mantel+'"></path>'
     +  '<rect x="42" y="66" width="6" height="52" fill="rgba(0,0,0,.18)"></rect>';
+  if (schnitt === "latz")
+    k += '<rect x="31" y="70" width="6" height="48" fill="'+hf+'"></rect>'
+      +  '<rect x="53" y="70" width="6" height="48" fill="'+hf+'"></rect>'
+      +  '<rect x="29" y="100" width="32" height="20" rx="3" fill="'+hf+'"></rect>';
   if (f >= 2) k += '<ellipse cx="45" cy="102" rx="'+(17+f)+'" ry="14" fill="rgba(255,255,255,.13)"></ellipse>';
   k += '<rect x="39" y="58" width="12" height="10" fill="'+profil.haut+'"></rect>';
 
@@ -521,9 +615,11 @@ function figurBox(profil, angezogen, hoehe, speck) {
 }
 
 /* Partnertiere, gezeichnet in einer Box von 44 × 34, Boden bei y=34. */
-function tierSVG(id, speck) {
+function tierSVG(id, speck, stufe) {
   var f = (speck===undefined) ? aktuellerSpeck() : speck;
   var b = 1 + f*0.040;
+  var st = (stufe===undefined) ? (typeof S!=="undefined" && S ? tierStufe() : 1) : stufe;
+  var wuchs = [0.68, 1, 1.26][st-1];
   var inhalt = "";
   if (id==="schildkroete") {
     inhalt = '<ellipse cx="22" cy="24" rx="15" ry="10" fill="'+fb("schildkroete","#4E8C5A")+'"></ellipse>'
@@ -594,8 +690,11 @@ function tierSVG(id, speck) {
       + '<circle cx="43" cy="20" r="1.6" fill="#2A2118"></circle>'
       + '<circle cx="34" cy="16" r="1.4" fill="#2A2118"></circle>';
   }
-  if (!f) return inhalt;
-  return '<g transform="translate(22 0) scale('+b.toFixed(3)+' 1) translate(-22 0)">'+inhalt+'</g>';
+  if (f) inhalt = '<g transform="translate(22 0) scale('+b.toFixed(3)+' 1) translate(-22 0)">'
+                + inhalt + '</g>';
+  if (wuchs === 1) return inhalt;
+  // Kleine Tiere sitzen auf dem Boden, große ragen darüber hinaus
+  return '<g transform="translate(22 34) scale('+wuchs+') translate(-22 -34)">'+inhalt+'</g>';
 }
 
 /* ============================================================
@@ -647,13 +746,13 @@ function bueroHinten() {
       +  '<rect x="56" y="106" width="20" height="14" fill="#F2ECDC"></rect>'
       +  '<path d="M36 112 L66 106" stroke="#C4534B" stroke-width="2"></path>';
   if (b.indexOf("schrank")>=0)
-    s += '<rect x="236" y="86" width="52" height="72" rx="4" fill="'+fb("schrank","#6E5334")+'"></rect>'
-      +  '<rect x="242" y="94" width="40" height="16" rx="2" fill="rgba(255,255,255,.16)"></rect>'
-      +  '<rect x="242" y="116" width="40" height="16" rx="2" fill="rgba(255,255,255,.16)"></rect>'
-      +  '<rect x="242" y="138" width="40" height="14" rx="2" fill="rgba(255,255,255,.16)"></rect>';
+    s += '<rect x="236" y="76" width="52" height="64" rx="4" fill="'+fb("schrank","#6E5334")+'"></rect>'
+      +  '<rect x="242" y="84" width="40" height="14" rx="2" fill="rgba(255,255,255,.16)"></rect>'
+      +  '<rect x="242" y="104" width="40" height="14" rx="2" fill="rgba(255,255,255,.16)"></rect>'
+      +  '<rect x="242" y="124" width="40" height="12" rx="2" fill="rgba(255,255,255,.16)"></rect>';
   if (b.indexOf("lampe")>=0)
-    s += '<rect x="210" y="118" width="4" height="42" fill="#4A4A52"></rect>'
-      +  '<path d="M199 118 l13 -16 l13 16 z" fill="'+fb("lampe","#EFC14E")+'"></path>';
+    s += '<rect x="98" y="118" width="4" height="42" fill="#4A4A52"></rect>'
+      +  '<path d="M87 118 l13 -16 l13 16 z" fill="'+fb("lampe","#EFC14E")+'"></path>';
   if (b.indexOf("pflanze")>=0)
     s += '<rect x="20" y="150" width="26" height="24" rx="3" fill="#A8623C"></rect>'
       +  '<circle cx="26" cy="142" r="12" fill="'+fb("pflanze","#4E8C5A")+'"></circle>'
@@ -674,22 +773,47 @@ function bueroVorne() {
       +  '<rect x="106" y="184" width="10" height="24" fill="rgba(0,0,0,.4)"></rect>'
       +  '<rect x="192" y="184" width="10" height="24" fill="rgba(0,0,0,.4)"></rect>';
   if (b.indexOf("buerokatze")>=0) { var kf=fb("buerokatze","#D9A441");
-    s += '<ellipse cx="240" cy="190" rx="20" ry="10" fill="'+kf+'"></ellipse>'
-      +  '<circle cx="258" cy="182" r="9" fill="'+kf+'"></circle>'
-      +  '<path d="M252 175 l2 -6 l5 4 z" fill="'+kf+'"></path>'
-      +  '<path d="M263 175 l4 -5 l2 5 z" fill="'+kf+'"></path>'
-      +  '<circle cx="255" cy="182" r="1.5" fill="#2A2118"></circle>'
-      +  '<circle cx="261" cy="182" r="1.5" fill="#2A2118"></circle>'; }
+    s += '<ellipse cx="52" cy="192" rx="20" ry="10" fill="'+kf+'"></ellipse>'
+      +  '<circle cx="70" cy="184" r="9" fill="'+kf+'"></circle>'
+      +  '<path d="M64 177 l2 -6 l5 4 z" fill="'+kf+'"></path>'
+      +  '<path d="M75 177 l4 -5 l2 5 z" fill="'+kf+'"></path>'
+      +  '<circle cx="67" cy="184" r="1.5" fill="#2A2118"></circle>'
+      +  '<circle cx="73" cy="184" r="1.5" fill="#2A2118"></circle>'; }
   return s;
 }
 
-/* Gekaufte Tiere wohnen im Büro, garantiert außerhalb der Bühne. */
-var TIER_PLAETZE = [[16,150],[52,150],[86,150],[206,150],[240,150],[268,150],[16,176]];
+/* Das Gehege belegt den Boden rechts, außerhalb der Bühne. */
+function gehegeSVG() {
+  var e = S.gehege, s = '';
+  if (e.indexOf("streu")>=0)
+    s += '<ellipse cx="248" cy="186" rx="52" ry="20" fill="'+fb("streu","#D9C08E")+'"></ellipse>';
+  if (e.indexOf("hoehle")>=0)
+    s += '<path d="M282 190 q0 -30 26 -30 q26 0 26 30 z" fill="'+fb("hoehle","#6B6152")+'"></path>'
+      +  '<ellipse cx="308" cy="190" rx="13" ry="9" fill="#2A2620"></ellipse>';
+  if (e.indexOf("ast")>=0)
+    s += '<rect x="214" y="140" width="8" height="48" fill="'+fb("ast","#7A5636")+'"></rect>'
+      +  '<rect x="196" y="140" width="44" height="7" rx="3" fill="'+fb("ast","#7A5636")+'"></rect>';
+  if (e.indexOf("napf")>=0)
+    s += '<path d="M226 190 h24 l-4 11 h-16 z" fill="'+fb("napf","#C4534B")+'"></path>';
+  if (e.indexOf("wasser")>=0)
+    s += '<path d="M256 190 h24 l-4 11 h-16 z" fill="'+fb("wasser","#4E7FBF")+'"></path>';
+  if (e.indexOf("ball")>=0)
+    s += '<circle cx="286" cy="196" r="7" fill="'+fb("ball","#EFC14E")+'"></circle>';
+  if (e.indexOf("zaun")>=0) {
+    s += '<rect x="196" y="170" width="140" height="5" rx="2" fill="'+fb("zaun","#A9834E")+'"></rect>';
+    for (var i=0;i<7;i++)
+      s += '<rect x="'+(196+i*22)+'" y="160" width="6" height="42" fill="'+fb("zaun","#A9834E")+'"></rect>';
+  }
+  return s;
+}
+
+/* Gekaufte Tiere leben im Gehege, garantiert außerhalb der Bühne. */
+var TIER_PLAETZE = [[200,150],[232,150],[264,150],[200,174],[236,174],[268,174],[296,150]];
 function bueroTiere() {
   var s = '';
   S.tiere.forEach(function (id, i) {
     var p = TIER_PLAETZE[i % TIER_PLAETZE.length];
-    s += '<g transform="translate('+p[0]+' '+p[1]+') scale(0.62)">'+tierSVG(id)+'</g>';
+    s += '<g transform="translate('+p[0]+' '+p[1]+') scale(0.5)">'+tierSVG(id)+'</g>';
   });
   return s;
 }
@@ -710,68 +834,68 @@ function baum(x, y, h, c1, c2) {
 function ortDeko(ort) {
   var g = '<g opacity="0.5">';
   if (ort.name === "Park") {
-    g += '<path d="M0 250 q90 -40 180 -6 q90 34 180 -10 v40 H0 z" fill="#6FAF54"></path>'
-      +  baum(48, 208, 60, "#4E8C3F", "#6B4A25")
-      +  baum(196, 196, 68, "#57A047", "#6B4A25")
-      +  baum(320, 214, 54, "#4E8C3F", "#6B4A25")
-      +  '<ellipse cx="120" cy="300" rx="34" ry="12" fill="#79BC5C"></ellipse>'
-      +  '<ellipse cx="280" cy="330" rx="40" ry="14" fill="#79BC5C"></ellipse>';
+    g += '<path d="M0 196 q90 -32 180 -5 q90 26 180 -8 v34 H0 z" fill="#6FAF54"></path>'
+      +  baum(48, 162, 46, "#4E8C3F", "#6B4A25")
+      +  baum(196, 152, 52, "#57A047", "#6B4A25")
+      +  baum(320, 166, 42, "#4E8C3F", "#6B4A25")
+      +  '<ellipse cx="120" cy="238" rx="32" ry="10" fill="#79BC5C"></ellipse>'
+      +  '<ellipse cx="285" cy="262" rx="38" ry="12" fill="#79BC5C"></ellipse>';
   }
   if (ort.name === "Küche") {
-    g += '<rect x="0" y="196" width="360" height="14" fill="#C79358"></rect>'
-      +  '<rect x="0" y="210" width="360" height="52" fill="#D9A86F"></rect>'
-      +  '<rect x="24" y="222" width="70" height="30" rx="3" fill="#C08F55"></rect>'
-      +  '<rect x="112" y="222" width="70" height="30" rx="3" fill="#C08F55"></rect>'
-      +  '<rect x="200" y="222" width="70" height="30" rx="3" fill="#C08F55"></rect>'
-      +  '<rect x="40" y="96" width="120" height="10" rx="3" fill="#C79358"></rect>'
-      +  '<rect x="52" y="72" width="18" height="24" rx="3" fill="#E8CFA8"></rect>'
-      +  '<rect x="80" y="76" width="16" height="20" rx="3" fill="#E8CFA8"></rect>'
-      +  '<rect x="106" y="70" width="20" height="26" rx="3" fill="#E8CFA8"></rect>'
-      +  '<rect x="242" y="56" width="86" height="62" rx="4" fill="#BFE4F5"></rect>'
-      +  '<path d="M285 56 v62 M242 87 h86" stroke="#C79358" stroke-width="5"></path>';
+    g += '<rect x="0" y="152" width="360" height="12" fill="#C79358"></rect>'
+      +  '<rect x="0" y="164" width="360" height="42" fill="#D9A86F"></rect>'
+      +  '<rect x="22" y="174" width="66" height="24" rx="3" fill="#C08F55"></rect>'
+      +  '<rect x="106" y="174" width="66" height="24" rx="3" fill="#C08F55"></rect>'
+      +  '<rect x="190" y="174" width="66" height="24" rx="3" fill="#C08F55"></rect>'
+      +  '<rect x="38" y="72" width="112" height="9" rx="3" fill="#C79358"></rect>'
+      +  '<rect x="50" y="52" width="16" height="20" rx="3" fill="#E8CFA8"></rect>'
+      +  '<rect x="76" y="56" width="15" height="16" rx="3" fill="#E8CFA8"></rect>'
+      +  '<rect x="100" y="50" width="18" height="22" rx="3" fill="#E8CFA8"></rect>'
+      +  '<rect x="244" y="42" width="80" height="52" rx="4" fill="#BFE4F5"></rect>'
+      +  '<path d="M284 42 v52 M244 68 h80" stroke="#C79358" stroke-width="5"></path>';
   }
   if (ort.name === "Schule") {
-    g += '<rect x="52" y="58" width="220" height="96" rx="5" fill="#3E5B4A"></rect>'
-      +  '<rect x="60" y="66" width="204" height="80" rx="3" fill="#4A6B57"></rect>'
-      +  '<path d="M80 92 h70 M80 110 h110 M80 128 h60" stroke="#B9CDBF" stroke-width="4"></path>'
-      +  '<rect x="0" y="242" width="360" height="10" fill="#AEBDD2"></rect>'
-      +  '<rect x="26" y="252" width="94" height="34" rx="4" fill="#B7A183"></rect>'
-      +  '<rect x="140" y="252" width="94" height="34" rx="4" fill="#B7A183"></rect>'
-      +  '<rect x="254" y="252" width="94" height="34" rx="4" fill="#B7A183"></rect>';
+    g += '<rect x="54" y="40" width="212" height="80" rx="5" fill="#3E5B4A"></rect>'
+      +  '<rect x="62" y="48" width="196" height="64" rx="3" fill="#4A6B57"></rect>'
+      +  '<path d="M80 68 h68 M80 84 h106 M80 100 h58" stroke="#B9CDBF" stroke-width="4"></path>'
+      +  '<rect x="0" y="188" width="360" height="9" fill="#AEBDD2"></rect>'
+      +  '<rect x="24" y="197" width="90" height="28" rx="4" fill="#B7A183"></rect>'
+      +  '<rect x="136" y="197" width="90" height="28" rx="4" fill="#B7A183"></rect>'
+      +  '<rect x="248" y="197" width="90" height="28" rx="4" fill="#B7A183"></rect>';
   }
   if (ort.name === "Zoo") {
-    g += '<path d="M0 244 h360 v10 H0 z" fill="#A98F5E"></path>';
+    g += '<rect x="0" y="190" width="360" height="9" fill="#A98F5E"></rect>';
     for (var i = 0; i <= 8; i++)
-      g += '<rect x="'+(6+i*44)+'" y="196" width="9" height="58" fill="#A98F5E"></rect>';
-    g += '<rect x="292" y="150" width="12" height="96" fill="#8A6A3E"></rect>'
-      +  '<path d="M298 150 q-40 -14 -46 12 q34 -8 46 6 z" fill="#4E8C5A"></path>'
-      +  '<path d="M298 150 q40 -16 48 10 q-36 -8 -48 6 z" fill="#57A047"></path>'
-      +  '<ellipse cx="90" cy="300" rx="52" ry="18" fill="#C8B183"></ellipse>'
-      +  '<ellipse cx="250" cy="342" rx="46" ry="16" fill="#C8B183"></ellipse>';
+      g += '<rect x="'+(6+i*44)+'" y="152" width="9" height="47" fill="#A98F5E"></rect>';
+    g += '<rect x="292" y="112" width="11" height="80" fill="#8A6A3E"></rect>'
+      +  '<path d="M298 112 q-38 -12 -44 11 q32 -7 44 5 z" fill="#4E8C5A"></path>'
+      +  '<path d="M298 112 q38 -14 46 9 q-34 -7 -46 5 z" fill="#57A047"></path>'
+      +  '<ellipse cx="90" cy="238" rx="48" ry="15" fill="#C8B183"></ellipse>'
+      +  '<ellipse cx="252" cy="272" rx="42" ry="14" fill="#C8B183"></ellipse>';
   }
   if (ort.name === "Strand") {
-    g += '<circle cx="58" cy="60" r="30" fill="#FFE9A8"></circle>'
-      +  '<rect x="0" y="186" width="360" height="52" fill="#5FC6D6"></rect>'
-      +  '<path d="M0 206 q26 -10 52 0 t52 0 t52 0 t52 0 t52 0 t52 0" stroke="#BFEDF2" '
+    g += '<circle cx="56" cy="46" r="26" fill="#FFE9A8"></circle>'
+      +  '<rect x="0" y="144" width="360" height="42" fill="#5FC6D6"></rect>'
+      +  '<path d="M0 160 q26 -9 52 0 t52 0 t52 0 t52 0 t52 0 t52 0" stroke="#BFEDF2" '
       +  'stroke-width="5" fill="none"></path>'
-      +  '<path d="M0 230 q26 -10 52 0 t52 0 t52 0 t52 0 t52 0 t52 0" stroke="#BFEDF2" '
+      +  '<path d="M0 180 q26 -9 52 0 t52 0 t52 0 t52 0 t52 0 t52 0" stroke="#BFEDF2" '
       +  'stroke-width="4" fill="none"></path>'
-      +  '<rect x="300" y="150" width="11" height="100" fill="#A8794A"></rect>'
-      +  '<path d="M306 150 q-44 -16 -50 12 q36 -10 50 6 z" fill="#4E9C6A"></path>'
-      +  '<path d="M306 150 q44 -18 52 10 q-38 -10 -52 6 z" fill="#5CAE78"></path>'
-      +  '<ellipse cx="120" cy="316" rx="46" ry="14" fill="#EBD6A2"></ellipse>';
+      +  '<rect x="300" y="114" width="10" height="82" fill="#A8794A"></rect>'
+      +  '<path d="M305 114 q-40 -14 -46 11 q33 -9 46 5 z" fill="#4E9C6A"></path>'
+      +  '<path d="M305 114 q40 -16 48 9 q-35 -9 -48 5 z" fill="#5CAE78"></path>'
+      +  '<ellipse cx="120" cy="250" rx="42" ry="12" fill="#EBD6A2"></ellipse>';
   }
   if (ort.name === "Versteck") {
-    g += '<rect x="0" y="120" width="360" height="140" fill="#565062"></rect>';
+    g += '<rect x="0" y="92" width="360" height="110" fill="#565062"></rect>';
     for (var r = 0; r < 4; r++)
       for (var c2 = 0; c2 < 7; c2++)
-        g += '<rect x="'+(6+c2*52+(r%2)*26)+'" y="'+(128+r*34)+'" width="46" height="28" rx="3" '
+        g += '<rect x="'+(6+c2*52+(r%2)*26)+'" y="'+(98+r*27)+'" width="46" height="22" rx="3" '
           +  'fill="#615A6E"></rect>';
-    g += '<rect x="24" y="248" width="72" height="60" rx="4" fill="#7A6448"></rect>'
-      +  '<rect x="30" y="212" width="60" height="40" rx="4" fill="#8A7152"></rect>'
-      +  '<rect x="268" y="240" width="76" height="68" rx="4" fill="#7A6448"></rect>'
-      +  '<path d="M180 0 v52" stroke="#3A3646" stroke-width="4"></path>'
-      +  '<circle cx="180" cy="62" r="16" fill="#FFE0A3"></circle>';
+    g += '<rect x="22" y="196" width="66" height="48" rx="4" fill="#7A6448"></rect>'
+      +  '<rect x="28" y="166" width="54" height="32" rx="4" fill="#8A7152"></rect>'
+      +  '<rect x="272" y="190" width="70" height="54" rx="4" fill="#7A6448"></rect>'
+      +  '<path d="M180 0 v40" stroke="#3A3646" stroke-width="4"></path>'
+      +  '<circle cx="180" cy="50" r="14" fill="#FFE0A3"></circle>';
   }
   return g + '</g>';
 }
@@ -938,7 +1062,7 @@ function tierWirkt(w) {
 }
 function goldFuerFall(fall) {
   return 4 + 2*fall.spuren.length + (traegtWirkung("gold")?2:0) + (istBossfall()?10:0)
-       + (tierWirkt("gold")?1:0) + S.hq*2;
+       + (tierWirkt("gold") ? (tierStufe()>=3?2:1) : 0) + S.hq*2;
 }
 var PREISE = { lupe:4, hund:6, lampe:8 };
 
@@ -998,7 +1122,7 @@ function speichereStand() {
       schurke:S.schurke, bande:S.bande, thema:S.thema, besitzer:S.besitzer,
       fetzen:S.fetzen, geborgen:S.geborgen, archiv:S.archiv.slice(-60), paketKapitel:S.paketKapitel,
       witz:S.witz, speck:S.speck, tiere:S.tiere, tierAktiv:S.tierAktiv,
-      hq:S.hq, dinge:S.dinge
+      hq:S.hq, dinge:S.dinge, gehege:S.gehege, farbtoepfe:S.farbtoepfe
     }));
   } catch (e) { /* kein Zugriff */ }
 }
@@ -1010,6 +1134,7 @@ var S = {
   schurke: null, bande: null, thema: 0, besitzer: null, fetzen: 0, geborgen: [],
   archiv: [], paketKapitel: 0, witz: false, speck: 0,
   tiere: [], tierAktiv: null, hq: 0, dinge: [], freiRaus: [],
+  gehege: [], farbtoepfe: [], ladenTab: "hilfe",
   fall: null, gefunden: [], angeklagt: [], hilfeGenutzt: false,
   hell: false, erfolg: null, panel: null, farbwahl: null, dialog: null,
   spuerZone: null, neuesteSpur: null, transfer: null
@@ -1028,12 +1153,13 @@ function ladeSlot(i) {
     S.geborgen=d.geborgen||[]; S.archiv=d.archiv||[]; S.paketKapitel=d.paketKapitel||0;
     S.witz=!!d.witz; S.speck=d.speck||0;
     S.tiere=d.tiere||[]; S.tierAktiv=d.tierAktiv||null; S.hq=d.hq||0; S.dinge=d.dinge||[];
+    S.gehege=d.gehege||[]; S.farbtoepfe=d.farbtoepfe||[];
   } else {
     S.profil=null; S.besitz=[]; S.angezogen={hut:null,brille:null,kleidung:null,hand:null};
     S.farben={}; S.moebel=[]; S.upgrades=[]; S.level=1; S.items={lupe:1,hund:1,lampe:0};
     S.gold=0; S.stufe=0; S.hilfeSerie=0; S.kapitel=1; S.fallImKapitel=1;
     S.archiv=[]; S.paketKapitel=0; S.schurke=null; S.witz=false; S.speck=0;
-    S.tiere=[]; S.tierAktiv=null; S.hq=0; S.dinge=[];
+    S.tiere=[]; S.tierAktiv=null; S.hq=0; S.dinge=[]; S.gehege=[]; S.farbtoepfe=[];
   }
   if (!S.schurke) neuesKapitel();
   S.panel=null; S.dialog=null; S.farbwahl=null;
@@ -1082,7 +1208,7 @@ function renderStaende() {
         +  'style="display:flex;align-items:center;gap:12px;flex:1;text-align:left">'
         +  figurBox(d.profil, d.angezogen||{}, 62)
         +  '<span class="info"><b>' + rangText(rangVon(d.level||1)) + '</b><br>'
-        +  '📖 ' + (d.kapitel||1) + ' · 🔎 ' + (d.level||1) + ' · 🪙 ' + (d.gold||0) + '</span>'
+        +  '📖 ' + (d.kapitel||1) + ' · 🔎 ' + (d.level||1) + ' · 💰 ' + (d.gold||0) + '</span>'
         +  '</button><button class="loesch" data-act="export" data-i="'+i+'">📤</button>'
         +  '<button class="loesch" data-act="loeschen" data-i="'+i+'">🗑️</button></div>';
     } else {
@@ -1106,7 +1232,7 @@ function renderTransfer() {
   if (t.meldung) h += '<div class="transfer-meldung">'+t.meldung+'</div>';
   h += '<div class="ja-nein">'
     + '<button class="ja" data-act="'+(t.modus==="export"?"kopieren":"importieren")+'">'
-    + (t.modus==="export"?"⧉":"✓")+'</button>'
+    + (t.modus==="export"?"📋":"✓")+'</button>'
     + '<button class="nein" data-act="transferzu">✕</button></div></div></div>';
   return h;
 }
@@ -1131,7 +1257,7 @@ function kopfHTML() {
     + '<div class="rang-sub">📖 '+S.kapitel+' · '+Math.min(S.fallImKapitel,FAELLE_JE_KAPITEL+1)
     + '/'+(FAELLE_JE_KAPITEL+1)+(istBossfall()?' 👑':'')+'</div></div></div>'
     + '<div style="display:flex;gap:6px;align-items:center">'
-    + '<span class="gold">🪙 '+S.gold+'</span>'
+    + '<span class="gold">💰 '+S.gold+'</span>'
     + '<button class="kopf-knopf'+(S.witz?" witz-an":"")+'" data-act="witz">🍔</button>'
     + '<button class="kopf-knopf" data-act="staende">👥</button></div></div>';
 
@@ -1142,13 +1268,12 @@ function kopfHTML() {
 
   var kaufbar = ITEMS.some(function (it) { return S.besitz.indexOf(it.id)<0 && S.gold>=it.preis; });
   h += '<div class="reiter">'
-    + reiterKnopf("laden","🛒", S.gold>=PREISE.lupe)
+    + reiterKnopf("laden","🛒", ZIELE.concat(TIERE).concat(GEHEGE).concat(MOEBEL)
+        .some(function (z) { return S.gold>=z.preis; }))
     + reiterKnopf("garderobe","🧥", kaufbar)
     + reiterKnopf("karte","🗺️", false)
     + reiterKnopf("ordner","📁", false)
-    + reiterKnopf("buero","🪑", false)
-    + reiterKnopf("ziele","🏆", ZIELE.concat(TIERE).some(function (z) {
-        return !hatDing(z.id) && S.tiere.indexOf(z.id)<0 && S.gold>=z.preis; }))
+    + reiterKnopf("buero","🛋️", false)
     + '</div>';
   return h;
 }
@@ -1161,32 +1286,123 @@ function tafelKopf(titel) {
     + '<button class="schliessen" data-act="panel" data-p="zu">✕</button></div>';
 }
 function farbleisteHTML() {
+  var eigene = FARBTOPF.filter(function (f) { return S.farbtoepfe.indexOf(f)>=0; });
+  if (!eigene.length) return '<div class="pinsel-hinweis">🎨 🔒 → 🛒</div>';
   var h = '<div class="farbleiste">';
-  FARBTOPF.forEach(function (f) {
+  eigene.forEach(function (f) {
     h += '<button class="farbe'+(S.farbwahl===f?" aktiv":"")+'" data-act="farbwahl" '
       +  'data-f="'+encodeURIComponent(f)+'" style="background:'+f+'"></button>';
   });
+  // Grundfarbe wiederherstellen, kostet nichts
+  h += '<button class="farbe'+(S.farbwahl==="ab"?" aktiv":"")+'" data-act="farbwahl" '
+    +  'data-f="ab" style="background:rgba(255,255,255,.12)">⟲</button>';
   return h + '</div><div class="pinsel-hinweis">'
-    + (S.farbwahl ? '🖌️ → 👆  🪙'+FARBE_PREIS : '🖌️') + '</div>';
+    + (S.farbwahl ? '🖌️ → 👆' : '🖌️') + '</div>';
+}
+
+/* Ein Laden für alles Käufliche. Die Rubriken liegen hinter
+   kleinen Kartenreitern, damit immer nur eine Seite sichtbar ist
+   und nichts gescrollt werden muss. */
+var LADEN_TABS = [
+  { id:"hilfe",     sym:"🔍" }, { id:"verbesser", sym:"⭐" },
+  { id:"tiere",     sym:"🐾" }, { id:"gehege",    sym:"🌾" },
+  { id:"buero",     sym:"🛋️" }, { id:"ziele",     sym:"🏛️" },
+  { id:"farben",    sym:"🎨" }
+];
+
+function preisKachel(sym, preis, besessen, aktion, id, extra) {
+  var reicht = S.gold >= preis;
+  return '<button class="teil'+(besessen?" an":" zu")+(!besessen&&reicht?" kaufbar":"")+'" '
+    + (besessen ? '' : 'data-act="'+aktion+'" data-id="'+id+'"') + '>'
+    + '<span style="font-size:26px'+(besessen?'':';filter:grayscale(1) opacity(.5)')+'">'+sym+'</span>'
+    + (besessen ? '<span class="teilpreis">✓</span>'
+                : '<span class="teilpreis">💰'+preis+'</span>')
+    + (extra||'') + '</button>';
 }
 
 function renderLaden() {
-  var h = '<div class="tafel">' + tafelKopf("🛒") + '<div class="laden-zeile">';
-  [{k:"lupe",i:"🔍"},{k:"hund",i:"🐶"},{k:"lampe",i:"🔦"}].forEach(function (a) {
-    h += '<button class="kauf'+(S.gold<PREISE[a.k]?" zuteuer":"")+'" data-act="kauf" data-item="'+a.k+'">'
-      +  a.i+'<span class="preis">🪙 '+PREISE[a.k]+'</span></button>';
+  var h = '<div class="tafel">' + tafelKopf("🛒");
+
+  h += '<div class="untertabs">';
+  LADEN_TABS.forEach(function (t) {
+    h += '<button class="'+(S.ladenTab===t.id?"aktiv":"")+'" data-act="ladentab" data-t="'+t.id+'">'
+      +  t.sym+'</button>';
   });
   h += '</div>';
-  var paketOffen = S.paketKapitel < S.kapitel;
-  h += '<button class="upgrade'+(paketOffen?"":" gekauft")+'" data-act="paket">'
-    + '<span class="u-icon">📦</span><span style="font-size:15px">🔍3 🐶2 🔦1</span>'
-    + '<span class="u-preis">'+(paketOffen?"🪙 "+PAKET_PREIS:"✓")+'</span></button>';
-  UPGRADES.forEach(function (u) {
-    var hat = hatUpgrade(u.id);
-    h += '<button class="upgrade'+(hat?" gekauft":"")+'" data-act="upgrade" data-id="'+u.id+'">'
-      + '<span class="u-icon">'+u.icon+'</span><span style="font-size:15px">'+u.text+'</span>'
-      + '<span class="u-preis">'+(hat?"✓":"🪙 "+u.preis)+'</span></button>';
-  });
+
+  if (S.ladenTab === "hilfe") {
+    h += '<div class="laden-zeile">';
+    [{k:"lupe",i:"🔍"},{k:"hund",i:"🐶"},{k:"lampe",i:"🔦"}].forEach(function (a) {
+      h += '<button class="kauf'+(S.gold<PREISE[a.k]?" zuteuer":"")+'" data-act="kauf" data-item="'+a.k+'">'
+        +  a.i+'<span class="preis">💰 '+PREISE[a.k]+'</span></button>';
+    });
+    h += '</div>';
+    var paketOffen = S.paketKapitel < S.kapitel;
+    h += '<button class="upgrade'+(paketOffen?"":" gekauft")+'" data-act="paket">'
+      + '<span class="u-icon">📦</span><span style="font-size:15px">🔍3 🐶2 🔦1</span>'
+      + '<span class="u-preis">'+(paketOffen?"💰 "+PAKET_PREIS:"✓")+'</span></button>';
+  }
+
+  if (S.ladenTab === "verbesser") {
+    UPGRADES.forEach(function (u) {
+      var hat = hatUpgrade(u.id);
+      h += '<button class="upgrade'+(hat?" gekauft":"")+'" data-act="upgrade" data-id="'+u.id+'">'
+        + '<span class="u-icon">'+u.icon+'</span><span style="font-size:15px">'+u.text+'</span>'
+        + '<span class="u-preis">'+(hat?"✓":"💰 "+u.preis)+'</span></button>';
+    });
+  }
+
+  if (S.ladenTab === "tiere") {
+    h += '<div class="slot-zeile" style="grid-template-columns:repeat(4,1fr)">';
+    TIERE.forEach(function (t) {
+      var da = S.tiere.indexOf(t.id)>=0;
+      if (da) {
+        var aktiv = S.tierAktiv===t.id;
+        h += '<button class="teil an'+(aktiv?" gewaehlt":"")+'" data-act="tieraktiv" data-id="'+t.id+'">'
+          + '<svg viewBox="0 0 44 34" width="52" height="40">'+tierSVG(t.id)+'</svg>'
+          + '<span class="teilpreis">'+(aktiv?"🎒":"🏠")+'</span></button>';
+      } else {
+        h += preisKachel(t.sym, t.preis, false, "kauftier", t.id);
+      }
+    });
+    h += '</div><div class="hinweiszeile">🐾 '+tierStufe()+'/3 · 🌾 '+S.gehege.length+'/'+GEHEGE.length+'</div>';
+  }
+
+  if (S.ladenTab === "gehege") {
+    h += '<div class="slot-zeile" style="grid-template-columns:repeat(4,1fr)">';
+    GEHEGE.forEach(function (e) {
+      h += preisKachel(e.sym, e.preis, S.gehege.indexOf(e.id)>=0, "kaufgehege", e.id);
+    });
+    h += '</div><div class="hinweiszeile">🌾 3 → 🐾 2 · 🌾 6 → 🐾 3</div>';
+  }
+
+  if (S.ladenTab === "buero") {
+    h += '<div class="slot-zeile" style="grid-template-columns:repeat(4,1fr)">';
+    MOEBEL.forEach(function (m) {
+      h += preisKachel(m.sym, m.preis, S.moebel.indexOf(m.id)>=0, "kaufmoebel", m.id);
+    });
+    h += '</div>';
+  }
+
+  if (S.ladenTab === "ziele") {
+    ZIELE.forEach(function (z) {
+      if (z.art==="hq" && S.hq < z.stufe-1) return;
+      var da = (z.art==="hq") ? S.hq >= z.stufe : hatDing(z.id);
+      h += zielZeile(z, da, "kaufziel");
+    });
+  }
+
+  if (S.ladenTab === "farben") {
+    h += '<div class="farbleiste">';
+    FARBTOPF.forEach(function (f) {
+      var hat = S.farbtoepfe.indexOf(f)>=0;
+      h += '<button class="farbe'+(hat?"":" zu")+'" data-act="kauftopf" '
+        +  'data-f="'+encodeURIComponent(f)+'" style="background:'+f+'">'
+        +  (hat?'':'<span class="topfpreis">🔒</span>')+'</button>';
+    });
+    h += '</div><div class="hinweiszeile">💰 '+TOPF_PREIS+' je Topf · danach frei benutzbar</div>';
+  }
+
   return h + '</div>';
 }
 
@@ -1207,7 +1423,7 @@ function renderGarderobe() {
       } else {
         h += '<button class="teil zu'+(S.gold>=it.preis?" kaufbar":"")+'" data-act="kaufteil" data-id="'+it.id+'">'
           +  '<div class="silhouette">'+figurBox(S.profil, vor, 58)+'</div>'
-          +  '<span class="teilpreis">🪙'+it.preis+'</span></button>';
+          +  '<span class="teilpreis">💰'+it.preis+'</span></button>';
       }
     });
     h += '</div>';
@@ -1296,7 +1512,7 @@ function renderOrdner() {
 function bueroBild() {
   // Reihenfolge macht die Tiefe: hinten, Tiere, Figur auf der Bühne, vorne
   return '<svg viewBox="0 0 300 210" style="width:100%;border-radius:16px;display:block">'
-    + bueroHinten() + bueroTiere()
+    + bueroHinten() + gehegeSVG() + bueroTiere()
     + '<g transform="translate(114 55) scale(0.8)">' + figurSVG(S.profil, S.angezogen) + '</g>'
     + bueroVorne() + '</svg>';
 }
@@ -1312,46 +1528,20 @@ function zielZeile(z, besessen, aktion, extra) {
   if (besessen) h += '<span class="z-fertig">✓</span>';
   else h += '<span class="z-balken"><span class="z-fuell" style="width:'
          + Math.round(anteil*100)+'%"></span></span>'
-         + '<span class="z-rest">'+(reicht ? "🪙 "+z.preis : "noch 🪙 "+(z.preis-S.gold))+'</span>';
+         + '<span class="z-rest">'+(reicht ? "💰 "+z.preis : "noch 💰 "+(z.preis-S.gold))+'</span>';
   return h + '</span></button>';
 }
 
-function renderZiele() {
-  var h = '<div class="tafel">' + tafelKopf("🏆");
-
-  h += '<div class="slot-titel">🏢</div>';
-  ZIELE.forEach(function (z) {
-    // HQ-Stufen nacheinander: Stufe 2 erst nach Stufe 1
-    if (z.art==="hq" && S.hq < z.stufe-1) return;
-    var da = (z.art==="hq") ? S.hq >= z.stufe : hatDing(z.id);
-    h += zielZeile(z, da, "kaufziel");
-  });
-
-  h += '<div class="slot-titel">🐾</div>';
-  TIERE.forEach(function (t) {
-    var da = S.tiere.indexOf(t.id)>=0;
-    if (!da) { h += zielZeile(t, false, "kauftier"); return; }
-    var aktiv = S.tierAktiv===t.id;
-    h += '<button class="ziel fertig'+(aktiv?" aktiv":"")+'" data-act="tieraktiv" data-id="'+t.id+'">'
-      + '<span class="z-sym">'+t.sym+'</span>'
-      + '<span class="z-mitte"><span class="z-tier">'
-      + '<svg viewBox="0 0 44 34" width="58" height="45">'+tierSVG(t.id)+'</svg></span>'
-      + '<span class="z-fertig">'+(aktiv?"🎒":"🏠")+'</span></span></button>';
-  });
-  return h + '</div>';
-}
-
 function renderBuero() {
-  var h = '<div class="tafel">' + tafelKopf("🪑")
+  var h = '<div class="tafel">' + tafelKopf("🛋️")
     + bueroBild()
     + farbleisteHTML()
-    + '<div class="slot-zeile" style="grid-template-columns:repeat(4,1fr);margin-top:6px">';
-  MOEBEL.forEach(function (m) {
-    var hat = S.moebel.indexOf(m.id)>=0;
-    h += '<button class="teil'+(hat?" an":" zu")+(!hat && S.gold>=m.preis?" kaufbar":"")+'" '
-      + (hat?'data-act="faerbemoebel"':'data-act="kaufmoebel"')+' data-id="'+m.id+'">'
-      + '<span style="font-size:24px'+(hat?'':';filter:grayscale(1) opacity(.45)')+'">'+m.sym+'</span>'
-      + (hat?'':'<span class="teilpreis">🪙'+m.preis+'</span>')+'</button>';
+    + '<div class="slot-zeile" style="grid-template-columns:repeat(6,1fr);margin-top:6px">';
+  // Gekauft wird im Laden – hier wird nur noch gefärbt
+  MOEBEL.concat(GEHEGE).forEach(function (m) {
+    if (S.moebel.indexOf(m.id)<0 && S.gehege.indexOf(m.id)<0) return;
+    h += '<button class="teil an" data-act="faerbemoebel" data-id="'+m.id+'">'
+      + '<span style="font-size:22px">'+m.sym+'</span></button>';
   });
   return h + '</div></div>';
 }
@@ -1363,8 +1553,8 @@ function renderDialog() {
   var reicht = S.gold >= d.preis;
   return '<div class="modal"><div class="modal-inner pop">'
     + '<div style="font-size:44px;min-height:120px;display:grid;place-items:center">'+d.vorschau+'</div>'
-    + '<div class="dialog-preis'+(reicht?"":" dialog-zuwenig")+'">🪙 '+d.preis+'</div>'
-    + '<div style="font-size:14px;color:var(--offen);margin-top:6px">🪙 '+S.gold+' → '
+    + '<div class="dialog-preis'+(reicht?"":" dialog-zuwenig")+'">💰 '+d.preis+'</div>'
+    + '<div style="font-size:14px;color:var(--offen);margin-top:6px">💰 '+S.gold+' → '
     + Math.max(0, S.gold-d.preis)+'</div>'
     + '<div class="ja-nein">'
     + (reicht ? '<button class="ja" data-act="jakauf">✓</button>' : '')
@@ -1381,7 +1571,6 @@ function render() {
   if (S.panel==="karte")     { app.innerHTML = h + renderKarte()     + (S.dialog?renderDialog():""); return; }
   if (S.panel==="ordner")    { app.innerHTML = h + renderOrdner()    + (S.dialog?renderDialog():""); return; }
   if (S.panel==="buero")     { app.innerHTML = h + renderBuero()     + (S.dialog?renderDialog():""); return; }
-  if (S.panel==="ziele")     { app.innerHTML = h + renderZiele()     + (S.dialog?renderDialog():""); return; }
 
   var f = S.fall, raus = ausgeschlossen(), frei = alleSpurenDa();
   if (istBossfall()) h += steckbriefHTML(S.schurke, 5, true) + '<div style="height:10px"></div>';
@@ -1420,9 +1609,9 @@ function render() {
     h += '<rect x="0" y="0" width="'+BREITE+'" height="'+HOEHE+'" fill="#0B1120" opacity="'
       + ((traegtWirkung("dunkel")||tierWirkt("dunkel"))?0.34:0.68)+'" pointer-events="none"></rect>';
   }
-  h += '<g transform="translate(6 408)" pointer-events="none">'+figurSVG(S.profil,S.angezogen)+'</g>';
+  h += '<g transform="translate(6 282)" pointer-events="none">'+figurSVG(S.profil,S.angezogen)+'</g>';
   if (S.tierAktiv)
-    h += '<g transform="translate(104 508)" pointer-events="none">'+tierSVG(S.tierAktiv)+'</g>';
+    h += '<g transform="translate(104 388)" pointer-events="none">'+tierSVG(S.tierAktiv)+'</g>';
   h += '</svg>';
   if (S.level===1 && S.gefunden.length===0) h += '<div class="tipphand">👆</div>';
   h += '</div>';
@@ -1463,7 +1652,7 @@ function render() {
       + '<div class="e-kopf">'+e.taeter.join(" ")+' 🔗 <span class="e-bande">'+S.bande+'</span></div>'
       + '<div class="e-jubel">'+(e.boss?"👑🎉":"🎉")+'</div>'
       + '<div class="chips">'
-      + '<span class="chip gold-chip">🪙 '+e.gold+'</span>'
+      + '<span class="chip gold-chip">💰 '+e.gold+'</span>'
       + '<span class="chip">'+e.beute+' <span class="pfeilchen">→</span> '
       + '<span class="huepft">'+S.besitzer+'</span> 💛</span>';
     if (e.futter) h += '<span class="chip"><span class="huepft">'+e.futter+'</span> 😋</span>';
@@ -1471,7 +1660,6 @@ function render() {
       var neu = S.fetzen===1 ? S.schurke.figur : katalog(S.schurke.merkmale[S.fetzen-2]).icon;
       h += '<span class="chip">🕵️ '+neu+' <small>'+S.fetzen+'/5</small></span>';
     }
-    if (e.neuTeil) h += '<span class="chip teil-chip">'+figurBox(S.profil,S.angezogen,74)+'</span>';
     h += '</div><button class="weiter" data-act="weiter">▶</button></div></div>';
   }
   if (S.dialog) h += renderDialog();
@@ -1499,12 +1687,13 @@ function starteFall() {
     markiereZone(wuerfle(S.fall.objekte.filter(function(o){ return o.spur; })));
 
   // Spürhund: jeden dritten Fall eine Spur geschenkt, nie die letzte
-  if (tierWirkt("schnuff") && S.level % 3 === 0 && S.fall.spuren.length > 1)
+  if (tierWirkt("schnuff") && S.level % (tierStufe()>=3?2:3) === 0 && S.fall.spuren.length > 1)
     S.gefunden.push(wuerfle(S.fall.spuren).merkmal);
 
   // Affe räumt drei Ablenker weg – Spuren rührt er nicht an
   if (tierWirkt("raeumen")) {
-    var weg = mische(S.fall.objekte.filter(function (o) { return !o.spur; })).slice(0,3);
+    var weg = mische(S.fall.objekte.filter(function (o) { return !o.spur; }))
+                .slice(0, tierStufe()>=3 ? 5 : 3);
     S.fall.objekte = S.fall.objekte.filter(function (o) { return weg.indexOf(o)<0; });
   }
 
@@ -1513,7 +1702,9 @@ function starteFall() {
     var unschuldig = S.fall.verdaechtige.filter(function (v) {
       return S.fall.taeterIds.indexOf(v.id)<0;
     });
-    if (unschuldig.length) S.freiRaus.push(wuerfle(unschuldig).id);
+    mische(unschuldig).slice(0, tierStufe()>=3 ? 2 : 1).forEach(function (v) {
+      S.freiRaus.push(v.id);
+    });
   }
   render();
 }
@@ -1532,14 +1723,6 @@ function tippeObjekt(key, el) {
   if (o.spur && S.gefunden.indexOf(o.spur)<0) {
     S.gefunden.push(o.spur); S.neuesteSpur = o.spur; S.spuerZone = null; render();
   } else wackle(el);
-}
-
-function schalteTeilFrei() {
-  var offen = ITEMS.filter(function (it) { return S.besitz.indexOf(it.id)<0; });
-  if (!offen.length) return null;
-  var neu = wuerfle(offen);
-  S.besitz.push(neu.id); S.angezogen[neu.slot] = neu.id;
-  return neu;
 }
 
 function beschuldige(id, el) {
@@ -1582,7 +1765,7 @@ function beschuldige(id, el) {
   if (S.witz) { S.speck = Math.min((S.speck||0)+1, 12); futter = wuerfle(FUTTER); }
 
   S.erfolg = { taeter:taeterFiguren, gold:lohn, boss:boss, beute:S.fall.beute,
-               fetzen:neuFetzen, neuTeil:schalteTeilFrei(), futter:futter };
+               fetzen:neuFetzen, futter:futter };
   speichereStand();
   render();
 }
@@ -1616,42 +1799,33 @@ function fuehreKaufAus() {
   if (d.typ==="upgrade") { S.gold -= d.preis; S.upgrades.push(d.id); }
   if (d.typ==="paket")   { S.gold -= d.preis; S.paketKapitel = S.kapitel;
                            S.items.lupe += 3; S.items.hund += 2; S.items.lampe += 1; }
-  if (d.typ==="farbe")   { S.gold -= d.preis; S.farben[d.id] = d.farbe; }
   if (d.typ==="ziel")    { S.gold -= d.preis;
                            var zz = zielVon(d.id);
                            if (zz.art==="hq") S.hq = zz.stufe; else S.dinge.push(zz.id); }
   if (d.typ==="tier")    { S.gold -= d.preis; S.tiere.push(d.id);
                            if (!S.tierAktiv) S.tierAktiv = d.id; }
+  if (d.typ==="gehege")  { S.gold -= d.preis; S.gehege.push(d.id); }
+  if (d.typ==="topf")    { S.gold -= d.preis; S.farbtoepfe.push(d.id); }
   S.dialog = null;
   speichereStand();
   render();
 }
 
+/* Färben kostet nichts mehr – bezahlt wird der Topf, nicht der Anstrich.
+   Damit ist auch der frühere Fehler weg, dieselbe Farbe mehrfach zu kaufen. */
+function faerbe(id) {
+  if (S.farbwahl === "ab") delete S.farben[id];
+  else S.farben[id] = S.farbwahl;
+  speichereStand(); render();
+}
+
 function teilAntippen(slot, id) {
-  if (S.farbwahl) {
-    var vor = {}; vor[slot] = id;
-    var dlg = { typ:"farbe", id:id, preis:FARBE_PREIS,
-                vorschau: figurBox(S.profil, vor, 110) };
-    dlg.farbe = S.farbwahl;
-    // Vorschau in der neuen Farbe: kurz eintragen, zeichnen, zurücknehmen
-    var alt = S.farben[id]; S.farben[id] = S.farbwahl;
-    dlg.vorschau = figurBox(S.profil, vor, 110);
-    if (alt === undefined) delete S.farben[id]; else S.farben[id] = alt;
-    S.dialog = dlg; render(); return;
-  }
+  if (S.farbwahl) { faerbe(id); return; }
   S.angezogen[slot] = (S.angezogen[slot]===id) ? null : id;
   speichereStand(); render();
 }
 
-function moebelAntippen(id) {
-  if (!S.farbwahl) return;
-  var m = moebelVon(id);
-  var alt = S.farben[id]; S.farben[id] = S.farbwahl;
-  var vorschau = '<svg viewBox="0 0 300 210" style="width:250px;border-radius:12px">'+bueroSVG()+'</svg>';
-  if (alt === undefined) delete S.farben[id]; else S.farben[id] = alt;
-  S.dialog = { typ:"farbe", id:id, preis:FARBE_PREIS, farbe:S.farbwahl, vorschau:vorschau };
-  render();
-}
+function moebelAntippen(id) { if (S.farbwahl) faerbe(id); }
 
 function nutzeItem(name) {
   if (S.erfolg || S.dialog) return;
@@ -1706,7 +1880,7 @@ app.addEventListener("click", function (ev) {
       var ok = false;
       try { ok = document.execCommand("copy"); } catch (e) { /* egal */ }
       if (!ok && navigator.clipboard) navigator.clipboard.writeText(feld.value);
-      S.transfer.meldung = "⧉ ✓";
+      S.transfer.meldung = "📋 ✓";
       renderStaende();
     }
     return;
@@ -1764,6 +1938,18 @@ app.addEventListener("click", function (ev) {
   if (act==="kaufziel") {
     var zi = zielVon(z.getAttribute("data-id"));
     if (zi) frage("ziel", zi.id, zi.preis, '<span style="font-size:70px">'+zi.sym+'</span>');
+  }
+  if (act==="ladentab") { S.ladenTab = z.getAttribute("data-t"); S.farbwahl=null; render(); return; }
+  if (act==="kaufgehege") {
+    var ge = gehegeVon(z.getAttribute("data-id"));
+    if (ge && S.gehege.indexOf(ge.id)<0)
+      frage("gehege", ge.id, ge.preis, '<span style="font-size:70px">'+ge.sym+'</span>');
+  }
+  if (act==="kauftopf") {
+    var fc = decodeURIComponent(z.getAttribute("data-f"));
+    if (S.farbtoepfe.indexOf(fc)>=0) return;
+    frage("topf", fc, TOPF_PREIS,
+      '<span style="display:inline-block;width:90px;height:90px;border-radius:24px;background:'+fc+'"></span>');
   }
   if (act==="kauftier") {
     var ti = tierVon(z.getAttribute("data-id"));
