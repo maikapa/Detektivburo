@@ -214,6 +214,11 @@
   .transfer-meldung { margin-top:10px; font-size:15px; color:var(--lampe); }
   .hochhaus { display:flex; align-items:flex-end; justify-content:center; gap:10px; margin-bottom:8px; }
   .hochhaus-zahl { font-size:15px; font-weight:700; color:var(--lampe); }
+  .loesch-karte { display:flex; align-items:center; gap:12px; background:rgba(255,255,255,.08);
+                  border-radius:18px; padding:10px 14px; margin-top:12px; }
+  .loesch-karte .info { text-align:left; font-size:14px; line-height:1.35; }
+  .loesch-warnung { margin-top:14px; font-size:20px; color:var(--rot); }
+  .ja.loesch-ja { background:var(--rot); color:#fff; }
   .version { text-align:center; font-size:12px; color:var(--offen); opacity:.55; margin-top:14px; }
 
   @keyframes wackel { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px) rotate(-6deg)}
@@ -1212,7 +1217,7 @@ var PREISE = { lupe:4, hund:6, lampe:8 };
 /* Sichtbar im Spielstände-Menü – daran erkennst du, ob eine neue
    Fassung angekommen ist. Bei jeder Auslieferung hochzählen,
    zusammen mit der Cache-Nummer in sw.js. */
-var VERSION = "v16";
+var VERSION = "v17";
 
 var BASIS_KEY = "detektivbuero.v6";
 var ANZ_STAENDE = 3;
@@ -1283,7 +1288,7 @@ var S = {
   gehege: [], farbtoepfe: [], ladenTab: "hilfe", entkommen: [], besiegte: [],
   fall: null, gefunden: [], angeklagt: [], hilfeGenutzt: false,
   hell: false, erfolg: null, panel: null, farbwahl: null, dialog: null,
-  spuerZone: null, neuesteSpur: null, transfer: null
+  spuerZone: null, neuesteSpur: null, transfer: null, loeschFrage: null
 };
 
 function ladeSlot(i) {
@@ -1373,7 +1378,28 @@ function renderStaende() {
     h += '<button class="stand frei" data-act="importfenster" style="font-size:20px">📥</button>';
   h += '<div class="version">'+VERSION+'</div>';
   if (S.transfer) h += renderTransfer();
+  if (S.loeschFrage !== null) h += renderLoeschFrage();
   app.innerHTML = h;
+}
+
+/* Löschen lässt sich nicht rückgängig machen, deshalb eine echte
+   Rückfrage: die Figur zum Wiedererkennen, der gefährliche Knopf in
+   Rot, daneben der Hinweis, vorher lieber zu exportieren. */
+function renderLoeschFrage() {
+  var d = leseSlot(S.loeschFrage);
+  if (!d) return '';
+  return '<div class="modal"><div class="modal-inner pop">'
+    + '<div style="font-size:40px">🗑️</div>'
+    + '<div class="loesch-karte">'
+    +   figurBox(d.profil, d.angezogen||{}, 90, (d.witz ? d.speck : 0) || 0)
+    +   '<span class="info"><b>'+rangText(rangVon(d.level||1))+'</b><br>'
+    +   '📖 '+(d.kapitel||1)+' · 🔎 '+(d.level||1)+' · 💰 '+(d.gold||0)+'</span>'
+    + '</div>'
+    + '<div class="loesch-warnung">⚠️ 📤 ?</div>'
+    + '<div class="ja-nein">'
+    +   '<button class="ja loesch-ja" data-act="loeschja">🗑️</button>'
+    +   '<button class="nein" data-act="loeschnein">✕</button>'
+    + '</div></div></div>';
 }
 
 /* Fenster zum Kopieren oder Einfügen eines Spielstand-Codes. */
@@ -2038,7 +2064,15 @@ app.addEventListener("click", function (ev) {
   var act = z.getAttribute("data-act");
 
   if (act==="slot")     { ladeSlot(parseInt(z.getAttribute("data-i"),10)); return; }
-  if (act==="loeschen") { loescheSlot(parseInt(z.getAttribute("data-i"),10)); renderStaende(); return; }
+  if (act==="loeschen") {
+    S.loeschFrage = parseInt(z.getAttribute("data-i"),10);
+    renderStaende(); return;
+  }
+  if (act==="loeschja") {
+    if (S.loeschFrage !== null) loescheSlot(S.loeschFrage);
+    S.loeschFrage = null; renderStaende(); return;
+  }
+  if (act==="loeschnein") { S.loeschFrage = null; renderStaende(); return; }
   if (act==="export") {
     S.transfer = { modus:"export", text: standAlsCode(parseInt(z.getAttribute("data-i"),10)) };
     renderStaende(); return;
